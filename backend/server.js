@@ -1,15 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const User = require("./models/User");
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
 // 1. Kết nối MongoDB Atlas
 mongoose
   .connect(
-    "mongodb+srv://anhbuinhatt_db_user:<db_password>@cluster0.ve0bn28.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    "mongodb+srv://anhbuinhatt_db_user:nhom11@cluster0.ve0bn28.mongodb.net/groupDB?retryWrites=true&w=majority&appName=Cluster0",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -41,7 +40,8 @@ app.post("/users", async (req, res) => {
 });
 
 // 4. Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log("📦 Database branch: Connected to MongoDB Atlas!"); // <== thêm dòng này
 });
