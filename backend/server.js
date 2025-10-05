@@ -43,5 +43,6 @@ app.post("/users", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log("📦 Database branch: Connected to MongoDB Atlas!"); // <== thêm dòng này
+  console.log("📦 Database branch: Connected to MongoDB Atlas!");
+  console.log("🧠 Backend branch: API server is healthy!");
 });
