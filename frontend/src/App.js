@@ -1,52 +1,67 @@
-// 📌 src/App.js
 import React, { useEffect, useState } from "react";
 
 function App() {
-  // 1️⃣ State để lưu danh sách user
+  // State
   const [users, setUsers] = useState([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
 
-  // 2️⃣ Gọi API backend khi component load lần đầu
+  // Lấy danh sách user
+  const fetchUsers = async () => {
+    const res = await fetch("http://localhost:5000/api/users");
+    const data = await res.json();
+    setUsers(data);
+  };
+
   useEffect(() => {
-    fetch("http://localhost:3000/api/users") // backend port 3000
-      .then((res) => res.json())
-      .then((data) => setUsers(data))
-      .catch((err) => console.error("API error:", err));
+    fetchUsers();
   }, []);
 
-  // 3️⃣ Hàm thêm user mới
-  const handleAddUser = async (e) => {
+  // Thêm hoặc cập nhật user
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:3000/api/users", {
+
+    if (editingUser) {
+      await fetch(`http://localhost:5000/api/users/${editingUser._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+      setEditingUser(null);
+    } else {
+      await fetch("http://localhost:5000/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email }),
       });
-      const newUser = await res.json();
-      setUsers([...users, newUser]); // Thêm user mới vào danh sách
-      setName("");
-      setEmail("");
-    } catch (err) {
-      console.error("POST error:", err);
     }
+
+    setName("");
+    setEmail("");
+    fetchUsers();
   };
 
-  // 4️⃣ Render danh sách user và form thêm user
+  // Xóa user
+  const handleDelete = async (id) => {
+    await fetch(`http://localhost:5000/api/users/${id}`, {
+      method: "DELETE",
+    });
+    fetchUsers();
+  };
+
+  // Sửa user
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setName(user.name);
+    setEmail(user.email);
+  };
+
   return (
     <div style={{ padding: 20 }}>
-      <h1>Danh sách User</h1>
-      <ul>
-        {users.map((u) => (
-          <li key={u._id}>
-            {u.name} - {u.email}
-          </li>
-        ))}
-      </ul>
+      <h1>Quản lý người dùng</h1>
 
-      <h2>Thêm User mới</h2>
-      <form onSubmit={handleAddUser}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Tên"
@@ -61,8 +76,19 @@ function App() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button type="submit">Thêm</button>
+        <button type="submit">{editingUser ? "Cập nhật" : "Thêm"}</button>
       </form>
+
+      <h2>Danh sách người dùng</h2>
+      <ul>
+        {users.map((u) => (
+          <li key={u._id}>
+            {u.name} - {u.email}{" "}
+            <button onClick={() => handleEdit(u)}>✏️ Sửa</button>{" "}
+            <button onClick={() => handleDelete(u._id)}>🗑️ Xóa</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
