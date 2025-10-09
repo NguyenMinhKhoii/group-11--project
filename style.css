@@ -1,0 +1,94 @@
+/* Căn giữa toàn bộ trang */
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  font-family: "Poppins", sans-serif;
+}
+
+/* Hộp form chính */
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+/* Form đăng ký / đăng nhập */
+.form-box {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.form-box h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* Ô nhập liệu */
+.input-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  color: #555;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #66a6ff;
+  box-shadow: 0 0 4px #66a6ff;
+}
+
+/* Nút bấm */
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #66a6ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #4a90e2;
+}
+
+/* Chuyển liên kết */
+.switch-text {
+  margin-top: 15px;
+  color: #555;
+  font-size: 14px;
+}
+
+.switch-text a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.switch-text a:hover {
+  text-decoration: underline;
+}
