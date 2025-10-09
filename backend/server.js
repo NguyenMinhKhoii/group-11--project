@@ -1,48 +1,36 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const User = require("./models/User");
+const dotenv = require("dotenv");
+const User = require("./models/User"); // Model bạn đã có
+const authRoutes = require("./routes/auth"); // 🔹 Thêm dòng này
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 
-// 1. Kết nối MongoDB Atlas
+// Kết nối MongoDB Atlas
 mongoose
-  .connect(
-    "mongodb+srv://anhbuinhatt_db_user:nhom11@cluster0.ve0bn28.mongodb.net/groupDB?retryWrites=true&w=majority&appName=Cluster0",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Atlas connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// 2. API GET all users
+// 🔹 Thêm dòng này sau khi cấu hình middleware (express.json)
+app.use("/api/auth", authRoutes); // Đăng ký route cho Authentication
+
+// API GET
 app.get("/users", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const users = await User.find();
+  res.json(users);
 });
 
-// 3. API POST create user
+// API POST
 app.post("/users", async (req, res) => {
-  try {
-    const { name, email } = req.body;
-    const newUser = new User({ name, email });
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const { name, email, password } = req.body;
+  const newUser = new User({ name, email, password });
+  await newUser.save();
+  res.status(201).json(newUser);
 });
 
-// 4. Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log("📦 Database branch: Connected to MongoDB Atlas!");
-  console.log("🧠 Backend branch: API server is healthy!");
-});
+// Khởi động server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
