@@ -1,11 +1,14 @@
 const express = require("express");
-const app = express();
-const userRoutes = require("./routes/user");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const authRoutes = require("./routes/auth"); // ✅ Đường dẫn chính xác
 
-app.use(express.json()); // ✅ Cho phép đọc JSON từ body
-app.use("/", userRoutes); // hoặc app.use("/api", userRoutes)
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// ✅ Đăng ký route auth
+app.use("/api/auth", authRoutes);
 
 const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
