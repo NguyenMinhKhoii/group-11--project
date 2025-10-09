@@ -1,4 +1,5 @@
 const express = require("express");
+database-auth
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const User = require("./models/User"); // Model bạn đã có
@@ -34,3 +35,15 @@ app.post("/users", async (req, res) => {
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+=======
+const app = express();
+const userRoutes = require("./routes/user");
+
+app.use(express.json()); // ✅ Cho phép đọc JSON từ body
+app.use("/", userRoutes); // hoặc app.use("/api", userRoutes)
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+backend
