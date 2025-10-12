@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
+const verifyToken = require("../middleware/authMiddleware");
+const checkRole = require("../middleware/roleMiddleware"); // ✅ Import đúng cách
 
-// CRUD đầy đủ
-router.get("/users", userController.getUsers);
-router.post("/users", userController.createUser);
-router.put("/users/:id", userController.updateUser);     // PUT
-router.delete("/users/:id", userController.deleteUser);   // DELETE
+// Lấy danh sách user (Admin)
+router.get("/", verifyToken, checkRole("Admin"), userController.getUsers);
+
+// Xóa user (Admin hoặc chính chủ)
+router.delete("/:id", verifyToken, userController.deleteUser);
 
 module.exports = router;
