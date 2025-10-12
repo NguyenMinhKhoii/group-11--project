@@ -1,14 +1,34 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
-const authRoutes = require("./routes/auth"); // ✅ Đường dẫn chính xác
+const jwt = require("jsonwebtoken");
+
+const userRoutes = require("./routes/userRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// ✅ Đăng ký route auth
-app.use("/api/auth", authRoutes);
+// ✅ Dữ liệu tạm (in-memory)
+global.users = [
+  { id: "1", name: "Admin", email: "admin@gmail.com", password: "123456", role: "Admin" },
+  { id: "2", name: "User A", email: "a@gmail.com", password: "123456", role: "User" },
+  { id: "3", name: "User B", email: "b@gmail.com", password: "123456", role: "User" }
+];
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+// Đăng nhập (test)
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  const user = global.users.find(u => u.email === email && u.password === password);
+  if (!user) return res.status(401).json({ message: "Sai email hoặc mật khẩu!" });
+
+  const token = jwt.sign({ id: user.id, role: user.role }, "SECRET_KEY", { expiresIn: "1h" });
+  res.json({ token, role: user.role, name: user.name });
+});
+
+// 👉 Route
+app.use("/users", userRoutes);
+app.use("/profile", profileRoutes);
+
+// Chạy server
+app.listen(3000, () => console.log("🚀 Server chạy tại http://localhost:3000"));
