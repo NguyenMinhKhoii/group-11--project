@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <form id="loginForm" class="form-box">
+      <h2>Đăng nhập</h2>
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="Nhập email" required />
+      </div>
+      <div class="input-group">
+        <label>Mật khẩu</label>
+        <input type="password" id="password" placeholder="Nhập mật khẩu" required />
+      </div>
+      <button type="submit" class="btn">Đăng nhập</button>
+      <p class="switch-text">Chưa có tài khoản? <a href="signup.html">Đăng ký</a></p>
+      <p id="message" class="message"></p>
+      <div id="tokenBox" class="token-box"></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      const message = document.getElementById("message");
+      const tokenBox = document.getElementById("tokenBox");
+
+      if (res.ok) {
+        message.textContent = "🎉 Đăng nhập thành công!";
+        message.className = "message success";
+        tokenBox.textContent = data.token;
+
+        // ✅ Lưu token vào localStorage
+        localStorage.setItem("token", data.token);
+      } else {
+        message.textContent = data.message || "❌ Lỗi đăng nhập!";
+        message.className = "message error";
+        tokenBox.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>
