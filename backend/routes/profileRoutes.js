@@ -1,13 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
-const profileController = require("../controllers/profileController");
 
-// Xem thông tin cá nhân
-router.get("/", authMiddleware, profileController.getProfile);
-
-// Cập nhật thông tin cá nhân
-router.put("/", authMiddleware, profileController.updateProfile);
+// ✅ Route đơn giản để test
+router.get("/", (req, res) => {
+  res.json({ message: "Thông tin hồ sơ người dùng" });
+});
 
 module.exports = router;
-
