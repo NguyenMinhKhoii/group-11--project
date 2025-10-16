@@ -3,25 +3,65 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { generateAccessToken, generateRefreshToken } = require("../utils/token");
 const refreshTokenStore = require("../utils/refreshTokenStore");
+const { ROLES } = require("../middleware/roleMiddleware");
 require("dotenv").config();
+
+// Dữ liệu test users với roles khác nhau
+const TEST_USERS = [
+  {
+    id: 1,
+    email: "user@example.com",
+    password: "123456",
+    name: "Test User",
+    role: ROLES.USER
+  },
+  {
+    id: 2, 
+    email: "moderator@example.com",
+    password: "123456",
+    name: "Test Moderator",
+    role: ROLES.MODERATOR
+  },
+  {
+    id: 3,
+    email: "admin@example.com", 
+    password: "123456",
+    name: "Test Admin",
+    role: ROLES.ADMIN
+  }
+];
 
 // === SV1: API /auth/login ===
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  // Test tạm (chưa cần DB)
-  if (email === "user@example.com" && password === "123456") {
-    const user = { email: email, name: "Test User" };
+  // Tìm user trong dữ liệu test
+  const user = TEST_USERS.find(u => u.email === email && u.password === password);
+  
+  if (user) {
+    // Tạo payload cho token (bao gồm role)
+    const tokenPayload = { 
+      id: user.id,
+      email: user.email, 
+      name: user.name,
+      role: user.role 
+    };
     
     // Tạo Access Token và Refresh Token
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
     
     // Lưu refresh token
     refreshTokenStore.add(refreshToken);
     
     return res.json({
       message: "Đăng nhập thành công!",
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      },
       accessToken: accessToken,
       refreshToken: refreshToken,
     });
