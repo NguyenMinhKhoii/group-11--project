@@ -113,7 +113,6 @@
     "range-parser": "^1.2.1",
     "raw-body": "^3.0.1",
     "readdirp": "^3.6.0",
-    "router": "^2.2.0",
     "safe-buffer": "^5.2.1",
     "safer-buffer": "^2.1.2",
     "semver": "^7.7.2",

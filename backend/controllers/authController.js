@@ -1,5 +1,7 @@
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+feature/rbac
+const fs = require("fs");
+
  feature/refresh-token
 const User = require("../models/User");
 
@@ -54,74 +56,48 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 const users = require("../models/userModel");
+backend
 
-// Khóa bí mật JWT
-const SECRET_KEY = "group11_secret_key"; // Có thể đổi theo nhóm
+let resetTokens = {}; // { email: token }
 
-// ----------------------
-// 🟢 Đăng ký (Sign Up)
-// ----------------------
-exports.signup = async (req, res) => {
-  const { name, email, password } = req.body;
+exports.forgotPassword = (req, res) => {
+  const { email } = req.body;
+  const user = global.users.find(u => u.email === email);
+  if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng!" });
 
-  // Kiểm tra dữ liệu
-  if (!name || !email || !password)
-    return res.status(400).json({ message: "Thiếu thông tin đăng ký!" });
+  const token = jwt.sign({ email }, "RESET_SECRET", { expiresIn: "10m" });
+  resetTokens[email] = token;
 
-  // Kiểm tra email trùng
-  const existingUser = users.find((u) => u.email === email);
-  if (existingUser)
-    return res.status(400).json({ message: "Email đã tồn tại!" });
-
-  // Mã hóa mật khẩu
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Tạo user mới
-  const newUser = {
-    id: users.length + 1,
-    name,
-    email,
-    password: hashedPassword,
-  };
-
-  users.push(newUser);
-
-  res.status(201).json({
-    message: "Đăng ký thành công!",
-    user: { id: newUser.id, name: newUser.name, email: newUser.email },
-  });
+  console.log(`🟢 Token reset cho ${email}: ${token}`);
+  res.json({ message: "Đã gửi token reset (xem console để test)", token });
 };
 
-// ----------------------
-// 🟡 Đăng nhập (Login)
-// ----------------------
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
+exports.resetPassword = (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const decoded = jwt.verify(token, "RESET_SECRET");
+    const user = global.users.find(u => u.email === decoded.email);
+    if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng!" });
 
-  if (!email || !password)
-    return res.status(400).json({ message: "Thiếu email hoặc mật khẩu!" });
-
-  const user = users.find((u) => u.email === email);
-  if (!user) return res.status(404).json({ message: "Email không tồn tại!" });
-
-  // So sánh mật khẩu
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(401).json({ message: "Sai mật khẩu!" });
-
-  // Tạo JWT token (hết hạn sau 1 giờ)
-  const token = jwt.sign(
-    { id: user.id, email: user.email },
-    SECRET_KEY,
-    { expiresIn: "1h" }
-  );
-
-  res.status(200).json({
-    message: "Đăng nhập thành công!",
-    token,
-    user: { id: user.id, name: user.name, email: user.email },
-  });
+    user.password = newPassword;
+    delete resetTokens[decoded.email];
+    res.json({ message: "Đặt lại mật khẩu thành công!" });
+  } catch (err) {
+    res.status(400).json({ message: "Token không hợp lệ hoặc đã hết hạn!" });
+  }
 };
 
+exports.uploadAvatar = (req, res) => {
+  const userId = req.user.id;
+  const user = global.users.find(u => u.id === userId);
+  if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng!" });
+
+  // Giả lập URL Cloudinary
+  const avatarUrl = `https://fake-cloudinary.com/${req.file.filename}.jpg`;
+  user.avatar = avatarUrl;
+
+feature/rbac
+  res.json({ message: "Cập nhật avatar thành công!", avatar: avatarUrl });
 // ----------------------
 // 🔴 Đăng xuất (Logout)
 // ----------------------
@@ -129,4 +105,5 @@ exports.logout = (req, res) => {
   // JWT không lưu trên server, nên chỉ cần client xóa token là xong
   res.status(200).json({ message: "Đăng xuất thành công! (Client xóa token)" });
  backend
+backend
 };

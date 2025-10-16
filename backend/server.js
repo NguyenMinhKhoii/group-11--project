@@ -1,7 +1,9 @@
-// =========================
-// 1️⃣ Import thư viện
-// =========================
 const express = require("express");
+feature/rbac
+const bodyParser = require("body-parser");
+const { authenticateToken } = require("./middleware/authMiddleware");
+const authRoutes = require("./routes/authRoutes");
+=======
  feature/refresh-token
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -13,9 +15,14 @@ dotenv.config();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
+backend
 const userRoutes = require("./routes/userRoutes");
-const profileRoutes = require("./routes/profileRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
+feature/rbac
+const app = express();
+app.use(bodyParser.json());
+=======
 // =========================
 // 2️⃣ Khởi tạo app
 // =========================
@@ -51,7 +58,6 @@ app.post("/users", async (req, res) => {
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-=======
 // =========================
 // 3️⃣ Dữ liệu tạm
 // =========================
@@ -60,83 +66,76 @@ global.users = [
   { id: "2", name: "User A", email: "a@gmail.com", password: "123456", role: "User" },
   { id: "3", name: "User B", email: "b@gmail.com", password: "123456", role: "User" }
 ];
+backend
 
-// =========================
-// 4️⃣ Đăng nhập (Test)
-// =========================
-app.post("/login", (req, res) => {
-  const { email, password } = req.body;
-  const user = global.users.find(u => u.email === email && u.password === password);
-  if (!user) return res.status(401).json({ message: "Sai email hoặc mật khẩu!" });
-
-  const token = jwt.sign({ id: user.id, role: user.role }, "SECRET_KEY", { expiresIn: "1h" });
-  res.json({ token, role: user.role, name: user.name });
-});
-
-// =========================
-// 5️⃣ QUÊN MẬT KHẨU + RESET
-// =========================
-app.post("/forgot-password", (req, res) => {
-  const { email } = req.body;
-  const user = global.users.find(u => u.email === email);
-  if (!user) return res.status(404).json({ message: "Không tìm thấy email này!" });
-
-  const resetToken = jwt.sign({ id: user.id }, "RESET_SECRET", { expiresIn: "10m" });
-  console.log(`🟢 Token reset cho ${email}: ${resetToken}`);
-
-  res.json({
-    message: "Đã gửi token reset (xem console để test)",
-    token: resetToken
-  });
-});
-
-app.post("/reset-password", (req, res) => {
-  const { token, newPassword } = req.body;
-  try {
-    const decoded = jwt.verify(token, "RESET_SECRET");
-    const user = global.users.find(u => u.id === decoded.id);
-    if (!user) return res.status(404).json({ message: "Không tìm thấy user!" });
-
-    user.password = newPassword;
-    res.json({ message: "Đặt lại mật khẩu thành công!" });
-  } catch (err) {
-    res.status(400).json({ message: "Token không hợp lệ hoặc đã hết hạn!" });
-  }
-});
-
-// =========================
-// 6️⃣ Routes khác
-// =========================
+// ✅ Đăng ký router
+app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
-app.use("/profile", profileRoutes);
+app.use("/admin", adminRoutes);
 
-// =========================
-// 6️⃣ Upload Avatar (local)
-// =========================
-const multer = require("multer");
-const path = require("path");
+// Import role middleware
+const { checkRole, checkRoleLevel, checkAnyRole, ROLES } = require("./middleware/roleMiddleware");
 
-// Cấu hình lưu ảnh trong thư mục uploads/
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname))
-});
-
-const upload = multer({ storage });
-
-// Route upload-avatar
-app.post("/upload-avatar", upload.single("avatar"), (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "Chưa có file được chọn!" });
-
-  res.json({
-    message: "Upload avatar thành công!",
-    file: req.file
+// ✅ Route demo phân quyền
+app.get("/protected", authenticateToken, (req, res) => {
+  res.json({ 
+    message: `Xin chào ${req.user.name}, bạn đã truy cập thành công!`,
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      name: req.user.name,
+      role: req.user.role
+    }
   });
 });
 
+// Route chỉ dành cho User
+app.get("/user-only", authenticateToken, checkRole(ROLES.USER), (req, res) => {
+  res.json({ 
+    message: "Đây là khu vực dành riêng cho USER!",
+    user: req.user
+  });
+});
+
+// Route chỉ dành cho Moderator
+app.get("/moderator-only", authenticateToken, checkRole(ROLES.MODERATOR), (req, res) => {
+  res.json({ 
+    message: "Đây là khu vực dành riêng cho MODERATOR!",
+    user: req.user
+  });
+});
+
+// Route chỉ dành cho Admin  
+app.get("/admin-only", authenticateToken, checkRole(ROLES.ADMIN), (req, res) => {
+  res.json({ 
+    message: "Đây là khu vực dành riêng cho ADMIN!",
+    user: req.user
+  });
+});
+
+// Route cho Moderator và Admin (hierarchical)
+app.get("/mod-admin", authenticateToken, checkRoleLevel(ROLES.MODERATOR), (req, res) => {
+  res.json({ 
+    message: "Đây là khu vực dành cho MODERATOR trở lên!",
+    user: req.user
+  });
+});
+
+// Route cho nhiều role (OR logic)
+app.get("/multi-role", authenticateToken, checkAnyRole(ROLES.MODERATOR, ROLES.ADMIN), (req, res) => {
+  res.json({ 
+    message: "Đây là khu vực cho MODERATOR hoặc ADMIN!",
+    user: req.user
+  });
+});
+
+feature/rbac
+const PORT = 3000;
+app.listen(PORT, () => console.log(`✅ Server chạy tại http://localhost:${PORT}`));
+=======
 // =========================
 // 7️⃣ Chạy server
 // =========================
 app.listen(3000, () => console.log("🚀 Server chạy tại http://localhost:3000"));
  backend
+backend
