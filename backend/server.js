@@ -18,6 +18,8 @@ const jwt = require("jsonwebtoken");
 backend
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const avatarRoutes = require("./routes/avatarRoutes");
+const { testCloudinaryConnection } = require("./utils/cloudinaryConfig");
 
 feature/rbac
 const app = express();
@@ -71,6 +73,7 @@ backend
 // ✅ Đăng ký router
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/users", avatarRoutes);  // Avatar routes
 app.use("/admin", adminRoutes);
 
 // Import role middleware
@@ -131,11 +134,21 @@ app.get("/multi-role", authenticateToken, checkAnyRole(ROLES.MODERATOR, ROLES.AD
 
 feature/rbac
 const PORT = 3000;
+feature/avatar-upload
+app.listen(PORT, async () => {
+  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
+  
+  // Test Cloudinary connection
+  console.log('🔄 Testing Cloudinary connection...');
+  await testCloudinaryConnection();
+});
+
 app.listen(PORT, () => console.log(`✅ Server chạy tại http://localhost:${PORT}`));
-=======
+
 // =========================
 // 7️⃣ Chạy server
 // =========================
 app.listen(3000, () => console.log("🚀 Server chạy tại http://localhost:3000"));
  backend
+backend
 backend
