@@ -4,6 +4,8 @@ const { authenticateToken } = require("./middleware/authMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const avatarRoutes = require("./routes/avatarRoutes");
+const { testCloudinaryConnection } = require("./utils/cloudinaryConfig");
 
 const app = express();
 app.use(bodyParser.json());
@@ -11,6 +13,7 @@ app.use(bodyParser.json());
 // ✅ Đăng ký router
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/users", avatarRoutes);  // Avatar routes
 app.use("/admin", adminRoutes);
 
 // Import role middleware
@@ -70,4 +73,10 @@ app.get("/multi-role", authenticateToken, checkAnyRole(ROLES.MODERATOR, ROLES.AD
 });
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`✅ Server chạy tại http://localhost:${PORT}`));
+app.listen(PORT, async () => {
+  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
+  
+  // Test Cloudinary connection
+  console.log('🔄 Testing Cloudinary connection...');
+  await testCloudinaryConnection();
+});
