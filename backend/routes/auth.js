@@ -11,4 +11,10 @@ router.post("/login", authController.login);
 // API: /api/auth/logout
 router.post("/logout", authController.logout);
 
+// API: /api/auth/refresh
+router.post("/refresh", authController.refresh);
+
+// API: /api/auth/forgot-password
+router.post("/forgot-password", authController.forgotPassword);
+
 module.exports = router;

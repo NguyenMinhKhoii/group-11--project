@@ -1,11 +1,7 @@
 console.log("✅ File userController.js đã được load!");
 
-// Mảng tạm lưu user
-let users = [
-  { id: 1, name: "Khôi", email: "khoi@gmail.com" },
-  { id: 2, name: "Khởi", email: "khoi2@gmail.com" },
-  { id: 3, name: "Anh", email: "anh@gmail.com" },
-];
+// Import users từ userModel để cùng dùng chung với auth
+const users = require("../models/userModel");
 
 // GET: lấy danh sách user
 exports.getUsers = (req, res) => {
@@ -27,6 +23,51 @@ exports.createUser = (req, res) => {
 
   users.push(newUser);
   res.status(201).json(newUser);
+};
+
+// ----------------------
+// 📤 SHARE TOKENS/MESSAGES
+// ----------------------
+let sharedMessages = []; // Lưu messages/tokens được share
+
+// GET: Lấy danh sách messages được share
+exports.getSharedMessages = (req, res) => {
+  res.status(200).json({
+    total: sharedMessages.length,
+    messages: sharedMessages
+  });
+};
+
+// POST: Gửi token/message cho nhóm
+exports.shareMessage = (req, res) => {
+  const { type, content, from, to, timestamp } = req.body;
+  
+  if (!type || !content || !from) {
+    return res.status(400).json({ message: "Thiếu thông tin: type, content, from" });
+  }
+
+  const newMessage = {
+    id: sharedMessages.length + 1,
+    type: type, // "token", "message", "reset_token", etc.
+    content: content,
+    from: from, // Người gửi
+    to: to || "all", // Người nhận (default: tất cả)
+    timestamp: timestamp || new Date().toISOString(),
+    status: "sent"
+  };
+
+  sharedMessages.push(newMessage);
+  
+  res.status(201).json({
+    message: "✅ Gửi thành công!",
+    data: newMessage
+  });
+};
+
+// DELETE: Xóa message (để test)
+exports.clearSharedMessages = (req, res) => {
+  sharedMessages = [];
+  res.status(200).json({ message: "Đã xóa tất cả messages" });
 };
 
 // PUT: cập nhật user theo id

@@ -8,4 +8,9 @@ router.post("/users", userController.createUser);
 router.put("/users/:id", userController.updateUser);     // PUT
 router.delete("/users/:id", userController.deleteUser);   // DELETE
 
+// 📤 SHARE APIs - Để chia sẻ tokens/messages giữa thành viên nhóm
+router.get("/shared-messages", userController.getSharedMessages);
+router.post("/share-message", userController.shareMessage);
+router.delete("/shared-messages", userController.clearSharedMessages);
+
 module.exports = router;
