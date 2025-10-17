@@ -31,35 +31,42 @@ async function testSV3RefreshToken() {
     // 1. Test tạo User test
     console.log("1️⃣ Tạo User test...");
     const testEmail = `sv3_test_${Date.now()}@example.com`;
-    
+
     let testUser = new User({
       name: "SV3 Test User",
       email: testEmail,
       password: "testpassword123",
-      role: "user"
+      role: "user",
     });
-    
+
     await testUser.save();
     console.log("✅ User test đã được tạo với ID:", testUser._id);
 
     // 2. Test tạo RefreshToken bằng static method
     console.log("\n2️⃣ Test tạo RefreshToken bằng createToken()...");
-    const tokenValue = crypto.randomBytes(64).toString('hex');
-    
-    const refreshToken = await RefreshToken.createToken(testUser._id, tokenValue, 7);
+    const tokenValue = crypto.randomBytes(64).toString("hex");
+
+    const refreshToken = await RefreshToken.createToken(
+      testUser._id,
+      tokenValue,
+      7
+    );
     console.log("✅ RefreshToken đã được tạo:");
     console.log("   - Token ID:", refreshToken._id);
     console.log("   - User ID:", refreshToken.userId);
-    console.log("   - Token (20 ký tự đầu):", refreshToken.token.substring(0, 20) + "...");
+    console.log(
+      "   - Token (20 ký tự đầu):",
+      refreshToken.token.substring(0, 20) + "..."
+    );
     console.log("   - Ngày hết hạn:", refreshToken.expiryDate.toISOString());
     console.log("   - Đã bị revoke:", refreshToken.isRevoked);
 
     // 3. Test truy xuất RefreshToken từ database
     console.log("\n3️⃣ Test truy xuất RefreshToken từ database...");
-    const foundToken = await RefreshToken.findOne({ 
-      token: tokenValue 
-    }).populate('userId');
-    
+    const foundToken = await RefreshToken.findOne({
+      token: tokenValue,
+    }).populate("userId");
+
     if (foundToken) {
       console.log("✅ Truy xuất RefreshToken thành công:");
       console.log("   - Tên User:", foundToken.userId.name);
@@ -83,7 +90,7 @@ async function testSV3RefreshToken() {
 
     // 5. Test tạo token hết hạn
     console.log("\n5️⃣ Test token hết hạn...");
-    const expiredTokenValue = crypto.randomBytes(64).toString('hex');
+    const expiredTokenValue = crypto.randomBytes(64).toString("hex");
     const expiredToken = new RefreshToken({
       userId: testUser._id,
       token: expiredTokenValue,
@@ -121,7 +128,6 @@ async function testSV3RefreshToken() {
     console.log("   ✅ Verify RefreshToken: HOÀN THÀNH");
     console.log("   ✅ Revoke RefreshToken: HOÀN THÀNH");
     console.log("   ✅ Performance Index: HOÀN THÀNH");
-
   } catch (error) {
     console.error("❌ Test SV3 thất bại:", error.message);
     throw error;
@@ -150,7 +156,7 @@ async function main() {
 
 // Chạy test
 if (require.main === module) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error("❌ Lỗi chạy test SV3:", error);
     process.exit(1);
   });
