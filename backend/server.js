@@ -6,6 +6,7 @@ const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const avatarRoutes = require("./routes/avatarRoutes");
 const activityRoutes = require("./routes/activityRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 const { testCloudinaryConnection } = require("./utils/cloudinaryConfig");
 const { testEmailConnection } = require("./utils/emailConfig");
 const { generalRateLimit } = require("./middleware/rateLimitMiddleware");
@@ -23,6 +24,7 @@ app.use("/users", userRoutes);
 app.use("/users", avatarRoutes);  // Avatar routes
 app.use("/admin", adminRoutes);
 app.use("/activities", activityRoutes);  // Activity logs routes
+app.use("/profile", profileRoutes);  // Activity 6: Profile routes
 
 // Import role middleware
 const { checkRole, checkRoleLevel, checkAnyRole, ROLES } = require("./middleware/roleMiddleware");
