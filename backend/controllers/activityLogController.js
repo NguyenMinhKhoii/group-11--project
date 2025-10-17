@@ -1,9 +1,8 @@
 // Activity Log Controller - SV3 Activity 5
-const ActivityLogService = require('../services/ActivityLogService');
-const UserActivityLog = require('../models/UserActivityLog');
+const ActivityLogService = require("../services/ActivityLogService");
+const UserActivityLog = require("../models/UserActivityLog");
 
 class ActivityLogController {
-  
   // Get user activity logs (for admin or user themselves)
   static async getUserLogs(req, res) {
     try {
@@ -14,14 +13,14 @@ class ActivityLogController {
         action,
         status,
         startDate,
-        endDate
+        endDate,
       } = req.query;
 
       // Authorization check - users can only see their own logs, admins can see all
-      if (req.user.role !== 'admin' && req.user.userId !== userId) {
+      if (req.user.role !== "admin" && req.user.userId !== userId) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: You can only view your own activity logs'
+          message: "Access denied: You can only view your own activity logs",
         });
       }
 
@@ -31,39 +30,38 @@ class ActivityLogController {
         action,
         status,
         startDate,
-        endDate
+        endDate,
       });
 
       if (result.error) {
         return res.status(500).json({
           success: false,
-          message: 'Failed to retrieve activity logs',
-          error: result.error
+          message: "Failed to retrieve activity logs",
+          error: result.error,
         });
       }
 
       // Log this admin action
-      if (req.user.role === 'admin' && req.user.userId !== userId) {
-        await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      if (req.user.role === "admin" && req.user.userId !== userId) {
+        await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
           username: req.user.username,
           ipAddress: req.ip,
-          userAgent: req.get('User-Agent'),
-          additionalData: { targetUserId: userId, action: 'VIEW_USER_LOGS' }
+          userAgent: req.get("User-Agent"),
+          additionalData: { targetUserId: userId, action: "VIEW_USER_LOGS" },
         });
       }
 
       res.json({
         success: true,
         data: result.logs,
-        pagination: result.pagination
+        pagination: result.pagination,
       });
-
     } catch (error) {
-      console.error('Error in getUserLogs:', error);
+      console.error("Error in getUserLogs:", error);
       res.status(500).json({
         success: false,
-        message: 'Internal server error',
-        error: error.message
+        message: "Internal server error",
+        error: error.message,
       });
     }
   }
@@ -74,35 +72,36 @@ class ActivityLogController {
       const { timeframe = 24 } = req.query;
 
       // Admin only
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== "admin") {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: Admin privileges required'
+          message: "Access denied: Admin privileges required",
         });
       }
 
-      const analytics = await ActivityLogService.getSecurityAnalytics(parseInt(timeframe));
+      const analytics = await ActivityLogService.getSecurityAnalytics(
+        parseInt(timeframe)
+      );
 
       // Log admin action
-      await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
         username: req.user.username,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent'),
-        additionalData: { action: 'VIEW_SECURITY_ANALYTICS', timeframe }
+        userAgent: req.get("User-Agent"),
+        additionalData: { action: "VIEW_SECURITY_ANALYTICS", timeframe },
       });
 
       res.json({
         success: true,
         data: analytics,
-        timeframe: `${timeframe} hours`
+        timeframe: `${timeframe} hours`,
       });
-
     } catch (error) {
-      console.error('Error in getSecurityAnalytics:', error);
+      console.error("Error in getSecurityAnalytics:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to retrieve security analytics',
-        error: error.message
+        message: "Failed to retrieve security analytics",
+        error: error.message,
       });
     }
   }
@@ -113,35 +112,36 @@ class ActivityLogController {
       const { timeframe = 24 } = req.query;
 
       // Admin only
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== "admin") {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: Admin privileges required'
+          message: "Access denied: Admin privileges required",
         });
       }
 
-      const activities = await ActivityLogService.getSuspiciousActivities(parseInt(timeframe));
+      const activities = await ActivityLogService.getSuspiciousActivities(
+        parseInt(timeframe)
+      );
 
       // Log admin action
-      await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
         username: req.user.username,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent'),
-        additionalData: { action: 'VIEW_SUSPICIOUS_ACTIVITIES', timeframe }
+        userAgent: req.get("User-Agent"),
+        additionalData: { action: "VIEW_SUSPICIOUS_ACTIVITIES", timeframe },
       });
 
       res.json({
         success: true,
         data: activities,
-        timeframe: `${timeframe} hours`
+        timeframe: `${timeframe} hours`,
       });
-
     } catch (error) {
-      console.error('Error in getSuspiciousActivities:', error);
+      console.error("Error in getSuspiciousActivities:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to retrieve suspicious activities',
-        error: error.message
+        message: "Failed to retrieve suspicious activities",
+        error: error.message,
       });
     }
   }
@@ -153,10 +153,10 @@ class ActivityLogController {
       const { timeframe = 24, limit = 100 } = req.query;
 
       // Admin only
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== "admin") {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: Admin privileges required'
+          message: "Access denied: Admin privileges required",
         });
       }
 
@@ -167,11 +167,15 @@ class ActivityLogController {
       );
 
       // Log admin action
-      await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
         username: req.user.username,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent'),
-        additionalData: { action: 'VIEW_LOGS_BY_IP', targetIP: ipAddress, timeframe }
+        userAgent: req.get("User-Agent"),
+        additionalData: {
+          action: "VIEW_LOGS_BY_IP",
+          targetIP: ipAddress,
+          timeframe,
+        },
       });
 
       res.json({
@@ -179,15 +183,14 @@ class ActivityLogController {
         data: result.logs,
         total: result.total,
         ipAddress,
-        timeframe: `${timeframe} hours`
+        timeframe: `${timeframe} hours`,
       });
-
     } catch (error) {
-      console.error('Error in getLogsByIP:', error);
+      console.error("Error in getLogsByIP:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to retrieve logs by IP',
-        error: error.message
+        message: "Failed to retrieve logs by IP",
+        error: error.message,
       });
     }
   }
@@ -199,10 +202,10 @@ class ActivityLogController {
       const { timeframe = 24 } = req.query;
 
       // Authorization check
-      if (req.user.role !== 'admin' && req.user.userId !== userId) {
+      if (req.user.role !== "admin" && req.user.userId !== userId) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: You can only view your own activity summary'
+          message: "Access denied: You can only view your own activity summary",
         });
       }
 
@@ -214,23 +217,22 @@ class ActivityLogController {
       if (result.error) {
         return res.status(500).json({
           success: false,
-          message: 'Failed to retrieve activity summary',
-          error: result.error
+          message: "Failed to retrieve activity summary",
+          error: result.error,
         });
       }
 
       res.json({
         success: true,
         data: result.summary,
-        timeframe: `${timeframe} hours`
+        timeframe: `${timeframe} hours`,
       });
-
     } catch (error) {
-      console.error('Error in getUserActivitySummary:', error);
+      console.error("Error in getUserActivitySummary:", error);
       res.status(500).json({
         success: false,
-        message: 'Internal server error',
-        error: error.message
+        message: "Internal server error",
+        error: error.message,
       });
     }
   }
@@ -239,13 +241,17 @@ class ActivityLogController {
   static async checkRateLimit(req, res) {
     try {
       const { ipAddress } = req.params;
-      const { action = 'LOGIN_ATTEMPT', timeWindow = 15, maxAttempts = 5 } = req.query;
+      const {
+        action = "LOGIN_ATTEMPT",
+        timeWindow = 15,
+        maxAttempts = 5,
+      } = req.query;
 
       // Admin only
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== "admin") {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: Admin privileges required'
+          message: "Access denied: Admin privileges required",
         });
       }
 
@@ -257,24 +263,23 @@ class ActivityLogController {
       );
 
       // Log admin action
-      await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
         username: req.user.username,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent'),
-        additionalData: { action: 'CHECK_RATE_LIMIT', targetIP: ipAddress }
+        userAgent: req.get("User-Agent"),
+        additionalData: { action: "CHECK_RATE_LIMIT", targetIP: ipAddress },
       });
 
       res.json({
         success: true,
-        data: rateLimit
+        data: rateLimit,
       });
-
     } catch (error) {
-      console.error('Error in checkRateLimit:', error);
+      console.error("Error in checkRateLimit:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to check rate limit',
-        error: error.message
+        message: "Failed to check rate limit",
+        error: error.message,
       });
     }
   }
@@ -285,10 +290,10 @@ class ActivityLogController {
       const { userId, action, details } = req.body;
 
       // Admin only
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== "admin") {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: Admin privileges required'
+          message: "Access denied: Admin privileges required",
         });
       }
 
@@ -296,47 +301,54 @@ class ActivityLogController {
       if (!userId || !action) {
         return res.status(400).json({
           success: false,
-          message: 'Missing required fields: userId and action'
+          message: "Missing required fields: userId and action",
         });
       }
 
       const logDetails = {
         ...details,
         ipAddress: details?.ipAddress || req.ip,
-        userAgent: details?.userAgent || req.get('User-Agent'),
-        username: details?.username || 'Unknown'
+        userAgent: details?.userAgent || req.get("User-Agent"),
+        username: details?.username || "Unknown",
       };
 
-      const result = await ActivityLogService.logActivity(userId, action, logDetails);
+      const result = await ActivityLogService.logActivity(
+        userId,
+        action,
+        logDetails
+      );
 
       if (!result.success) {
         return res.status(500).json({
           success: false,
-          message: 'Failed to create log entry',
-          error: result.error
+          message: "Failed to create log entry",
+          error: result.error,
         });
       }
 
       // Log this admin action
-      await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
         username: req.user.username,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent'),
-        additionalData: { action: 'MANUAL_LOG_CREATION', targetUserId: userId, logAction: action }
+        userAgent: req.get("User-Agent"),
+        additionalData: {
+          action: "MANUAL_LOG_CREATION",
+          targetUserId: userId,
+          logAction: action,
+        },
       });
 
       res.status(201).json({
         success: true,
-        message: 'Log entry created successfully',
-        logId: result.logId
+        message: "Log entry created successfully",
+        logId: result.logId,
       });
-
     } catch (error) {
-      console.error('Error in createLog:', error);
+      console.error("Error in createLog:", error);
       res.status(500).json({
         success: false,
-        message: 'Internal server error',
-        error: error.message
+        message: "Internal server error",
+        error: error.message,
       });
     }
   }
@@ -345,10 +357,10 @@ class ActivityLogController {
   static async getActivityDashboard(req, res) {
     try {
       // Admin only
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== "admin") {
         return res.status(403).json({
           success: false,
-          message: 'Access denied: Admin privileges required'
+          message: "Access denied: Admin privileges required",
         });
       }
 
@@ -363,24 +375,26 @@ class ActivityLogController {
         uniqueIPs,
         analytics,
         suspicious,
-        recentActivity
+        recentActivity,
       ] = await Promise.all([
         UserActivityLog.countDocuments({ timestamp: { $gte: startTime } }),
-        UserActivityLog.distinct('userId', { timestamp: { $gte: startTime } }),
-        UserActivityLog.distinct('ipAddress', { timestamp: { $gte: startTime } }),
+        UserActivityLog.distinct("userId", { timestamp: { $gte: startTime } }),
+        UserActivityLog.distinct("ipAddress", {
+          timestamp: { $gte: startTime },
+        }),
         ActivityLogService.getSecurityAnalytics(hoursAgo),
         ActivityLogService.getSuspiciousActivities(hoursAgo),
         UserActivityLog.find({ timestamp: { $gte: startTime } })
           .sort({ timestamp: -1 })
           .limit(10)
-          .lean()
+          .lean(),
       ]);
 
       // Calculate risk distribution
       const riskDistribution = await UserActivityLog.aggregate([
         { $match: { timestamp: { $gte: startTime } } },
-        { $group: { _id: '$riskLevel', count: { $sum: 1 } } },
-        { $sort: { count: -1 } }
+        { $group: { _id: "$riskLevel", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
       ]);
 
       const dashboard = {
@@ -389,33 +403,35 @@ class ActivityLogController {
           totalActivities: totalLogs,
           uniqueUsers: uniqueUsers.length,
           uniqueIPs: uniqueIPs.length,
-          suspiciousCount: suspicious.length
+          suspiciousCount: suspicious.length,
         },
         analytics,
         riskDistribution,
         recentActivity: recentActivity.slice(0, 5), // Latest 5 activities
-        suspiciousActivities: suspicious.slice(0, 10) // Top 10 suspicious
+        suspiciousActivities: suspicious.slice(0, 10), // Top 10 suspicious
       };
 
       // Log admin dashboard access
-      await ActivityLogService.logActivity(req.user.userId, 'DATA_ACCESS', {
+      await ActivityLogService.logActivity(req.user.userId, "DATA_ACCESS", {
         username: req.user.username,
         ipAddress: req.ip,
-        userAgent: req.get('User-Agent'),
-        additionalData: { action: 'VIEW_ACTIVITY_DASHBOARD', timeframe: hoursAgo }
+        userAgent: req.get("User-Agent"),
+        additionalData: {
+          action: "VIEW_ACTIVITY_DASHBOARD",
+          timeframe: hoursAgo,
+        },
       });
 
       res.json({
         success: true,
-        data: dashboard
+        data: dashboard,
       });
-
     } catch (error) {
-      console.error('Error in getActivityDashboard:', error);
+      console.error("Error in getActivityDashboard:", error);
       res.status(500).json({
         success: false,
-        message: 'Failed to retrieve activity dashboard',
-        error: error.message
+        message: "Failed to retrieve activity dashboard",
+        error: error.message,
       });
     }
   }

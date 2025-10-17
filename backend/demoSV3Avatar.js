@@ -26,20 +26,25 @@ async function connectDB() {
 // Demo hoàn chỉnh SV3
 async function demoSV3AvatarUpload() {
   console.log("🚀 DEMO HOÀN THÀNH SV3: Avatar Upload System\n");
-  
+
   let demoUser = null;
   let uploadedAvatars = [];
-  
+
   try {
     // 1. Demo Cloudinary Account Setup
     console.log("1️⃣ DEMO: Cloudinary Account Setup");
     console.log("✅ Cloud Name: dqrepahwc");
     console.log("✅ API Integration: Hoạt động");
-    
+
     const pingResult = await cloudinary.api.ping();
     console.log("✅ Connection Status:", pingResult.status);
-    console.log("✅ Rate Limit:", pingResult.rate_limit_remaining, "/", pingResult.rate_limit_allowed);
-    
+    console.log(
+      "✅ Rate Limit:",
+      pingResult.rate_limit_remaining,
+      "/",
+      pingResult.rate_limit_allowed
+    );
+
     // 2. Demo User Creation
     console.log("\n2️⃣ DEMO: Tạo Demo User");
     const demoEmail = `demo_avatar_${Date.now()}@group11.com`;
@@ -47,38 +52,48 @@ async function demoSV3AvatarUpload() {
       name: "Demo Avatar User",
       email: demoEmail,
       password: "demopassword123",
-      role: "user"
+      role: "user",
     });
-    
+
     await demoUser.save();
     console.log("✅ Demo User:", demoUser.name);
     console.log("   - ID:", demoUser._id);
     console.log("   - Email:", demoUser.email);
     console.log("   - Initial Avatar:", demoUser.avatar || "Chưa có");
-    
+
     // 3. Demo Avatar Upload
     console.log("\n3️⃣ DEMO: Upload Avatar với Transformations");
-    
+
     // Tạo demo image (base64)
-    const demoImageBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
-    const imageBuffer = Buffer.from(demoImageBase64, 'base64');
-    
+    const demoImageBase64 =
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+    const imageBuffer = Buffer.from(demoImageBase64, "base64");
+
     // Upload avatar chính
-    const uploadResult = await AvatarUploadHelper.uploadAvatar(imageBuffer, demoUser._id);
-    
+    const uploadResult = await AvatarUploadHelper.uploadAvatar(
+      imageBuffer,
+      demoUser._id
+    );
+
     if (uploadResult.success) {
       console.log("✅ Upload Avatar thành công:");
       console.log("   - URL:", uploadResult.data.url);
-      console.log("   - Dimensions:", `${uploadResult.data.width}x${uploadResult.data.height}`);
+      console.log(
+        "   - Dimensions:",
+        `${uploadResult.data.width}x${uploadResult.data.height}`
+      );
       console.log("   - Format:", uploadResult.data.format);
       console.log("   - Public ID:", uploadResult.data.public_id);
       uploadedAvatars.push(uploadResult.data.public_id);
     }
-    
+
     // 4. Demo Multiple Sizes
     console.log("\n4️⃣ DEMO: Multiple Avatar Sizes");
-    const multiSizeResult = await AvatarUploadHelper.uploadAvatarMultipleSizes(imageBuffer, demoUser._id);
-    
+    const multiSizeResult = await AvatarUploadHelper.uploadAvatarMultipleSizes(
+      imageBuffer,
+      demoUser._id
+    );
+
     if (multiSizeResult.success) {
       console.log("✅ Multiple sizes upload:");
       Object.entries(multiSizeResult.data).forEach(([size, data]) => {
@@ -86,7 +101,7 @@ async function demoSV3AvatarUpload() {
         uploadedAvatars.push(data.public_id);
       });
     }
-    
+
     // 5. Demo Update User MongoDB
     console.log("\n5️⃣ DEMO: Lưu Avatar URL vào MongoDB");
     const updateResult = await AvatarUploadHelper.updateUserAvatar(
@@ -94,11 +109,11 @@ async function demoSV3AvatarUpload() {
       uploadResult.data.url,
       uploadResult.data
     );
-    
+
     if (updateResult.success) {
       console.log("✅ Update MongoDB thành công:");
       console.log("   - Avatar URL saved:", updateResult.data.avatar);
-      
+
       // Verify từ database
       const verifiedUser = await User.findById(demoUser._id);
       console.log("✅ Database Verification:");
@@ -107,14 +122,14 @@ async function demoSV3AvatarUpload() {
         public_id: verifiedUser.avatarMetadata?.public_id,
         format: verifiedUser.avatarMetadata?.format,
         dimensions: `${verifiedUser.avatarMetadata?.width}x${verifiedUser.avatarMetadata?.height}`,
-        size: verifiedUser.avatarMetadata?.bytes + " bytes"
+        size: verifiedUser.avatarMetadata?.bytes + " bytes",
       });
     }
-    
+
     // 6. Demo Avatar Transformations
     console.log("\n6️⃣ DEMO: Avatar Transformations");
     const presets = AvatarUploadHelper.getAvatarPresets();
-    
+
     console.log("✅ Available Transformations:");
     Object.entries(presets).forEach(([preset, transformation]) => {
       const transformedUrl = AvatarUploadHelper.generateTransformedUrl(
@@ -123,19 +138,27 @@ async function demoSV3AvatarUpload() {
       );
       console.log(`   - ${preset}: ${transformedUrl}`);
     });
-    
+
     // 7. Demo Image Validation
     console.log("\n7️⃣ DEMO: Image Validation System");
     const validFile = { mimetype: "image/jpeg", size: 1024 * 1000 }; // 1MB
     const invalidFile = { mimetype: "image/gif", size: 1024 * 1024 * 10 }; // 10MB GIF
-    
+
     const validResult = AvatarUploadHelper.validateImage(validFile);
     const invalidResult = AvatarUploadHelper.validateImage(invalidFile);
-    
+
     console.log("✅ Validation Results:");
-    console.log("   - JPEG 1MB:", validResult.valid ? "✅ ACCEPTED" : "❌ REJECTED");
-    console.log("   - GIF 10MB:", invalidResult.valid ? "✅ ACCEPTED" : `❌ REJECTED (${invalidResult.error})`);
-    
+    console.log(
+      "   - JPEG 1MB:",
+      validResult.valid ? "✅ ACCEPTED" : "❌ REJECTED"
+    );
+    console.log(
+      "   - GIF 10MB:",
+      invalidResult.valid
+        ? "✅ ACCEPTED"
+        : `❌ REJECTED (${invalidResult.error})`
+    );
+
     // 8. Demo Statistics
     console.log("\n8️⃣ DEMO: Upload Statistics");
     console.log("✅ Session Summary:");
@@ -144,7 +167,7 @@ async function demoSV3AvatarUpload() {
     console.log("   - Size variants: 4 (thumbnail, small, medium, large)");
     console.log("   - Database records: 1 user với avatar metadata");
     console.log("   - Transformations: 6 presets available");
-    
+
     console.log("\n🎉 DEMO SV3 HOÀN THÀNH THÀNH CÔNG!");
     console.log("\n📊 KẾT QUẢ CUỐI CÙNG SV3:");
     console.log("   ✅ Cloudinary Account: ACTIVE");
@@ -155,7 +178,7 @@ async function demoSV3AvatarUpload() {
     console.log("   ✅ Transformations: WORKING");
     console.log("   ✅ Helper Utilities: COMPLETE");
     console.log("   ✅ Test Coverage: 100%");
-    
+
     console.log("\n🔗 URLs Generated:");
     console.log("📸 Main Avatar:", uploadResult.data.url);
     if (multiSizeResult.success) {
@@ -164,22 +187,21 @@ async function demoSV3AvatarUpload() {
       console.log("📸 Medium:", multiSizeResult.data.medium.url);
       console.log("📸 Large:", multiSizeResult.data.large.url);
     }
-    
   } catch (error) {
     console.error("❌ Demo thất bại:", error.message);
     throw error;
   } finally {
     // Cleanup demo data
     console.log("\n🧹 Cleanup demo data...");
-    
+
     if (demoUser) {
       await User.deleteOne({ _id: demoUser._id });
       console.log("✅ Cleanup demo user");
     }
-    
+
     if (uploadedAvatars.length > 0) {
       try {
-        const deletePromises = uploadedAvatars.map(publicId => 
+        const deletePromises = uploadedAvatars.map((publicId) =>
           AvatarUploadHelper.deleteAvatar(publicId)
         );
         await Promise.all(deletePromises);
@@ -194,12 +216,12 @@ async function demoSV3AvatarUpload() {
 // Main execution
 async function main() {
   console.log("🎭 CHÀO MỪNG ĐẾN DEMO SV3 AVATAR UPLOAD!");
-  console.log("=" .repeat(60));
+  console.log("=".repeat(60));
   console.log("📅 Demo Date:", new Date().toISOString());
   console.log("👨‍💻 Người thực hiện: SV3");
   console.log("🎯 Hoạt động: Upload ảnh nâng cao (Avatar)");
-  console.log("=" .repeat(60));
-  
+  console.log("=".repeat(60));
+
   const connected = await connectDB();
   if (!connected) {
     console.error("❌ Không thể demo. Database connection failed.");
@@ -208,7 +230,7 @@ async function main() {
 
   try {
     await demoSV3AvatarUpload();
-    
+
     console.log("\n🏆 DEMO HOÀN THÀNH XUẤT SẮC!");
     console.log("\n📋 READY FOR INTEGRATION:");
     console.log("   🔗 SV1: API endpoint với Multer + Sharp middleware");
@@ -220,7 +242,6 @@ async function main() {
     console.log("   ✅ Comprehensive test suite");
     console.log("   ✅ Helper utilities complete");
     console.log("   ✅ Ready for production");
-    
   } catch (error) {
     console.error("\n❌ Demo failed:", error.message);
   } finally {
@@ -233,7 +254,7 @@ async function main() {
 
 // Chạy demo
 if (require.main === module) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error("❌ Demo error:", error);
     process.exit(1);
   });

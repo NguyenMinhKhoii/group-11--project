@@ -1,11 +1,11 @@
 // Rate Limiting Middleware - SV3 Activity 5
-const ActivityLogService = require('../services/ActivityLogService');
+const ActivityLogService = require("../services/ActivityLogService");
 
 // Rate limiting middleware for login attempts
 const rateLimitLogin = async (req, res, next) => {
   try {
     const ipAddress = req.ip || req.connection.remoteAddress;
-    const action = 'LOGIN_ATTEMPT';
+    const action = "LOGIN_ATTEMPT";
     const timeWindow = 15; // minutes
     const maxAttempts = 5; // max attempts per window
 
@@ -21,29 +21,28 @@ const rateLimitLogin = async (req, res, next) => {
       // Log the rate limit violation
       await ActivityLogService.logSecurityViolation(
         null, // No user ID yet
-        'Unknown',
+        "Unknown",
         ipAddress,
         `Rate limit exceeded: ${rateLimit.attempts}/${maxAttempts} login attempts`
       );
 
       return res.status(429).json({
         success: false,
-        message: 'Too many login attempts. Please try again later.',
+        message: "Too many login attempts. Please try again later.",
         retryAfter: Math.ceil((rateLimit.resetTime - new Date()) / 1000 / 60), // minutes
         details: {
           attempts: rateLimit.attempts,
           maxAttempts: rateLimit.maxAttempts,
-          resetTime: rateLimit.resetTime
-        }
+          resetTime: rateLimit.resetTime,
+        },
       });
     }
 
     // Store rate limit info in request for later use
     req.rateLimit = rateLimit;
     next();
-
   } catch (error) {
-    console.error('Rate limit middleware error:', error);
+    console.error("Rate limit middleware error:", error);
     // Don't block request if rate limiting fails
     next();
   }
@@ -52,10 +51,10 @@ const rateLimitLogin = async (req, res, next) => {
 // General rate limiting middleware (configurable)
 const rateLimit = (options = {}) => {
   const {
-    action = 'API_CALL',
+    action = "API_CALL",
     timeWindow = 15, // minutes
     maxAttempts = 100, // requests per window
-    skipSuccessful = false
+    skipSuccessful = false,
   } = options;
 
   return async (req, res, next) => {
@@ -74,7 +73,7 @@ const rateLimit = (options = {}) => {
         // Log the rate limit violation
         await ActivityLogService.logSecurityViolation(
           req.user?.userId || null,
-          req.user?.username || 'Unknown',
+          req.user?.username || "Unknown",
           ipAddress,
           `Rate limit exceeded: ${rateLimit.attempts}/${maxAttempts} ${action} attempts`
         );
@@ -86,16 +85,15 @@ const rateLimit = (options = {}) => {
           details: {
             attempts: rateLimit.attempts,
             maxAttempts: rateLimit.maxAttempts,
-            resetTime: rateLimit.resetTime
-          }
+            resetTime: rateLimit.resetTime,
+          },
         });
       }
 
       req.rateLimit = rateLimit;
       next();
-
     } catch (error) {
-      console.error('Rate limit middleware error:', error);
+      console.error("Rate limit middleware error:", error);
       next();
     }
   };
@@ -107,7 +105,7 @@ const logActivity = (action, options = {}) => {
     logSuccess = true,
     logFailure = true,
     includeBody = false,
-    includeQuery = false
+    includeQuery = false,
   } = options;
 
   return async (req, res, next) => {
@@ -115,7 +113,7 @@ const logActivity = (action, options = {}) => {
     const originalEnd = res.end;
 
     // Override res.end to capture response
-    res.end = function(chunk, encoding) {
+    res.end = function (chunk, encoding) {
       res.end = originalEnd;
 
       // Determine if request was successful
@@ -125,16 +123,16 @@ const logActivity = (action, options = {}) => {
       if (shouldLog) {
         // Prepare activity details
         const details = {
-          username: req.user?.username || 'Anonymous',
+          username: req.user?.username || "Anonymous",
           ipAddress: req.ip || req.connection.remoteAddress,
-          userAgent: req.get('User-Agent'),
-          status: isSuccess ? 'SUCCESS' : 'FAILED',
+          userAgent: req.get("User-Agent"),
+          status: isSuccess ? "SUCCESS" : "FAILED",
           additionalData: {
             method: req.method,
             url: req.originalUrl,
             statusCode: res.statusCode,
-            userAgent: req.get('User-Agent')
-          }
+            userAgent: req.get("User-Agent"),
+          },
         };
 
         // Include request body if requested (be careful with sensitive data)
@@ -152,8 +150,8 @@ const logActivity = (action, options = {}) => {
           req.user?.userId || null,
           action,
           details
-        ).catch(error => {
-          console.error('Failed to log activity:', error);
+        ).catch((error) => {
+          console.error("Failed to log activity:", error);
         });
       }
 
@@ -170,39 +168,43 @@ const logAuth = async (req, res, next) => {
   // Store original json method
   const originalJson = res.json;
 
-  res.json = function(data) {
+  res.json = function (data) {
     const isSuccess = res.statusCode >= 200 && res.statusCode < 400;
     const ipAddress = req.ip || req.connection.remoteAddress;
-    const userAgent = req.get('User-Agent');
+    const userAgent = req.get("User-Agent");
 
     // Determine action based on endpoint
-    let action = 'API_CALL';
-    if (req.route?.path?.includes('login')) {
-      action = isSuccess ? 'LOGIN_SUCCESS' : 'LOGIN_FAILED';
-    } else if (req.route?.path?.includes('register')) {
-      action = 'REGISTER';
-    } else if (req.route?.path?.includes('logout')) {
-      action = 'LOGOUT';
-    } else if (req.route?.path?.includes('reset')) {
-      action = 'PASSWORD_RESET_REQUEST';
+    let action = "API_CALL";
+    if (req.route?.path?.includes("login")) {
+      action = isSuccess ? "LOGIN_SUCCESS" : "LOGIN_FAILED";
+    } else if (req.route?.path?.includes("register")) {
+      action = "REGISTER";
+    } else if (req.route?.path?.includes("logout")) {
+      action = "LOGOUT";
+    } else if (req.route?.path?.includes("reset")) {
+      action = "PASSWORD_RESET_REQUEST";
     }
 
     // Log the authentication event
     const userId = req.user?.userId || data?.user?.id || null;
-    const username = req.user?.username || data?.user?.username || req.body?.username || 'Unknown';
+    const username =
+      req.user?.username ||
+      data?.user?.username ||
+      req.body?.username ||
+      "Unknown";
 
     ActivityLogService.logActivity(userId, action, {
       username,
       ipAddress,
       userAgent,
-      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      status: isSuccess ? "SUCCESS" : "FAILED",
       additionalData: {
         endpoint: req.originalUrl,
         method: req.method,
-        statusCode: res.statusCode
-      }
-    }).catch(error => {
-      console.error('Failed to log auth activity:', error);
+        statusCode: res.statusCode,
+      },
+    }).catch((error) => {
+      console.error("Failed to log auth activity:", error);
     });
 
     return originalJson.call(this, data);
@@ -215,5 +217,5 @@ module.exports = {
   rateLimitLogin,
   rateLimit,
   logActivity,
-  logAuth
+  logAuth,
 };
