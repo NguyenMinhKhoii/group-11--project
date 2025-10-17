@@ -20,6 +20,7 @@ const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const avatarRoutes = require("./routes/avatarRoutes");
 const { testCloudinaryConnection } = require("./utils/cloudinaryConfig");
+const { testEmailConnection } = require("./utils/emailConfig");
 
 feature/rbac
 const app = express();
@@ -141,6 +142,10 @@ app.listen(PORT, async () => {
   // Test Cloudinary connection
   console.log('🔄 Testing Cloudinary connection...');
   await testCloudinaryConnection();
+  
+  // Test Email connection
+  console.log('🔄 Testing Email connection...');
+  await testEmailConnection();
 });
 
 app.listen(PORT, () => console.log(`✅ Server chạy tại http://localhost:${PORT}`));
