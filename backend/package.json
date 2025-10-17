@@ -12,7 +12,10 @@
     "seed:rbac": "node seedRBACData.js",
     "test:cloudinary": "node simpleCloudinaryTest.js",
     "test:avatar": "node testAvatarHelper.js",
-    "test:avatar-full": "node testCloudinaryAvatar.js"
+    "test:avatar-full": "node testCloudinaryAvatar.js",
+    "demo:sv3": "node demoSV3Avatar.js",
+    "test:email": "node testEmailConfig.js",
+    "demo:email": "node simpleEmailDemo.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -25,6 +28,7 @@
     "mongoose": "^8.6.0",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^7.0.9",
     "sharp": "^0.34.4"
   },
   "devDependencies": {
