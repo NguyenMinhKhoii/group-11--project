@@ -1,16 +1,33 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Thiếu token!" });
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
-  try {
-    const decoded = jwt.verify(token, "SECRET_KEY");
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(403).json({ message: "Token không hợp lệ!" });
+  if (!token) {
+    return res.status(401).json({ 
+      message: "Access Token required!",
+      error: "NO_TOKEN" 
+    });
   }
-};
 
-module.exports = authMiddleware;
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || "accesssecret", (err, user) => {
+    if (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ 
+          message: "Access Token expired!", 
+          error: "TOKEN_EXPIRED" 
+        });
+      }
+      return res.status(403).json({ 
+        message: "Access Token invalid!",
+        error: "TOKEN_INVALID" 
+      });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+module.exports = { authenticateToken };

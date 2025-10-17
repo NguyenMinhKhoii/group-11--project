@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "frontend",
   "version": "1.0.0",
   "private": true,
@@ -16,5 +17,10 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.2",
     "vite": "^5.4.20"
+=======
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+>>>>>>> feature/redux-protected
   }
 }
