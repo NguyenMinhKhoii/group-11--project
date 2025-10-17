@@ -17,9 +17,12 @@
     "test:email": "node testEmailConfig.js",
     "demo:email": "node simpleEmailDemo.js",
     "test:logging": "node testActivityLogging.js",
-    "test:sv5": "node testActivityLogging.js"
+    "test:sv5": "node testActivityLogging.js",
+    "test:redux-api": "node testReduxAPI.js",
+    "test:sv6": "node testReduxAPI.js"
   },
   "dependencies": {
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",
