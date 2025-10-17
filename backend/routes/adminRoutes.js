@@ -39,6 +39,28 @@ let USERS_DATA = [
   }
 ];
 
+// === Activity 6: Admin Dashboard Root Endpoint ===
+router.get("/", authenticateToken, checkRole(ROLES.ADMIN), (req, res) => {
+  res.json({
+    message: "Admin dashboard access granted",
+    data: {
+      adminInfo: "Only admins can see this content",
+      systemStats: {
+        totalUsers: USERS_DATA.length,
+        activeUsers: USERS_DATA.filter(u => u.isActive).length,
+        totalAdmins: USERS_DATA.filter(u => u.role === ROLES.ADMIN).length,
+        serverUptime: process.uptime(),
+        timestamp: new Date().toISOString()
+      },
+      adminActions: [
+        { name: "Manage Users", endpoint: "/admin/users" },
+        { name: "View Statistics", endpoint: "/admin/users/stats" },
+        { name: "System Logs", endpoint: "/admin/logs" }
+      ]
+    }
+  });
+});
+
 // === SV1: API quản lý users - chỉ Admin mới truy cập được ===
 
 // GET /admin/users - Lấy danh sách tất cả users (Admin only)

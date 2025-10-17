@@ -6,6 +6,7 @@ const refreshTokenStore = require("../utils/refreshTokenStore");
 const { ROLES } = require("../middleware/roleMiddleware");
 const { logActivity, ACTIONS } = require("../middleware/activityMiddleware");
 const { loginRateLimit } = require("../middleware/rateLimitMiddleware");
+const { authenticateToken } = require("../middleware/authMiddleware");
 require("dotenv").config();
 
 // Dữ liệu test users với roles khác nhau
@@ -313,6 +314,27 @@ router.get("/debug/tokens", (req, res) => {
     tokens: refreshTokenStore.getAll()
   });
 });
+
+// === Activity 6: API /auth/me - Verify token and get user info ===
+router.get("/me", 
+  authenticateToken,
+  logActivity(ACTIONS.API_ACCESS),
+  (req, res) => {
+    // Token đã được verify trong authenticateToken middleware
+    // req.user chứa thông tin user từ token
+    
+    res.json({
+      message: "User info retrieved successfully",
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        role: req.user.role
+      },
+      isAuthenticated: true
+    });
+  }
+);
 
 module.exports = router;
 module.exports.TEST_USERS = TEST_USERS;
