@@ -5,10 +5,16 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const avatarRoutes = require("./routes/avatarRoutes");
+const activityRoutes = require("./routes/activityRoutes");
 const { testCloudinaryConnection } = require("./utils/cloudinaryConfig");
 const { testEmailConnection } = require("./utils/emailConfig");
+const { generalRateLimit } = require("./middleware/rateLimitMiddleware");
 
 const app = express();
+
+// ✅ Apply general rate limiting (optional - để protect toàn bộ API)
+// app.use(generalRateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+
 app.use(bodyParser.json());
 
 // ✅ Đăng ký router
@@ -16,6 +22,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/users", avatarRoutes);  // Avatar routes
 app.use("/admin", adminRoutes);
+app.use("/activities", activityRoutes);  // Activity logs routes
 
 // Import role middleware
 const { checkRole, checkRoleLevel, checkAnyRole, ROLES } = require("./middleware/roleMiddleware");

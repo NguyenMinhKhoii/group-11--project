@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { generateAccessToken, generateRefreshToken } = require("../utils/token");
 const refreshTokenStore = require("../utils/refreshTokenStore");
 const { ROLES } = require("../middleware/roleMiddleware");
+const { logActivity, ACTIONS } = require("../middleware/activityMiddleware");
+const { loginRateLimit } = require("../middleware/rateLimitMiddleware");
 require("dotenv").config();
 
 // Dữ liệu test users với roles khác nhau
@@ -31,8 +33,56 @@ const TEST_USERS = [
   }
 ];
 
+// === SV1: API /auth/register ===
+router.post("/register", 
+  logActivity(ACTIONS.REGISTER_ATTEMPT),
+  (req, res) => {
+    const { name, email, password, role = ROLES.USER } = req.body;
+
+    // Kiểm tra input
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        error: "Tên, email và mật khẩu là bắt buộc!" 
+      });
+    }
+
+    // Kiểm tra email đã tồn tại
+    const existingUser = TEST_USERS.find(u => u.email === email);
+    if (existingUser) {
+      return res.status(400).json({ 
+        error: "Email đã được sử dụng!" 
+      });
+    }
+
+    // Tạo user mới
+    const newUser = {
+      id: TEST_USERS.length + 1,
+      email,
+      password,
+      name,
+      role: role || ROLES.USER
+    };
+
+    // Thêm vào danh sách users
+    TEST_USERS.push(newUser);
+
+    res.status(201).json({
+      message: "Đăng ký thành công!",
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role
+      }
+    });
+  }
+);
+
 // === SV1: API /auth/login ===
-router.post("/login", (req, res) => {
+router.post("/login", 
+  loginRateLimit({ maxAttempts: 5 }),
+  logActivity(ACTIONS.LOGIN_ATTEMPT),
+  (req, res) => {
   const { email, password } = req.body;
 
   // Tìm user trong dữ liệu test
@@ -120,7 +170,9 @@ const {
 } = require('../utils/passwordResetTokens');
 
 // === SV1: API /auth/forgot-password - Gửi email reset password ===
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", 
+  logActivity(ACTIONS.PASSWORD_RESET_REQUEST),
+  async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -172,7 +224,9 @@ router.post("/forgot-password", async (req, res) => {
 });
 
 // === SV1: API /auth/reset-password/:token - Reset password với token ===
-router.post("/reset-password/:token", (req, res) => {
+router.post("/reset-password/:token", 
+  logActivity(ACTIONS.PASSWORD_RESET_SUCCESS),
+  (req, res) => {
   try {
     const { token } = req.params;
     const { newPassword, confirmPassword } = req.body;
@@ -261,3 +315,4 @@ router.get("/debug/tokens", (req, res) => {
 });
 
 module.exports = router;
+module.exports.TEST_USERS = TEST_USERS;
