@@ -1,19 +1,41 @@
-/* Căn giữa toàn bộ trang */
+/* Reset và base styles */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
+  font-family: "Poppins", Arial, sans-serif;
+  line-height: 1.6;
+  background: #f8f9fa;
+}
+
+/* Body cho trang form (login/signup) */
+body.form-page {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  font-family: "Poppins", sans-serif;
 }
 
-/* Hộp form chính */
-.container {
+/* Body cho trang dashboard */
+body.dashboard-page {
+  background: #f8f9fa;
+  padding-top: 0;
+}
+
+/* Container cho các trang khác nhau */
+.form-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
+  padding: 20px;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
 }
 
@@ -24,6 +46,7 @@ body {
   border-radius: 15px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   text-align: center;
+  width: 100%;
 }
 
 .form-box h2 {
