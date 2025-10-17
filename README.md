@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -68,3 +69,32 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+=======
+# 🌿 Group 11 Project – Node.js + React + MongoDB
+
+## 👥 Thành viên & Vai trò
+| Họ tên | Vai trò |
+|--------|----------|
+| Nguyễn Minh Khôi | Backend (Node.js + Express) |
+| Bùi Nhật Anh | Database (MongoDB + Mongoose) |
+| Quốc Khôi | Frontend (React + Axios) |
+
+---
+
+## ⚙️ Công nghệ sử dụng
+- Node.js + Express  
+- ReactJS + Axios  
+- MongoDB Atlas + Mongoose  
+- Postman để test API  
+- GitHub để quản lý version  
+
+---
+
+## 🚀 Cách chạy dự án
+
+### 🔹 Backend
+```bash
+cd backend
+npm install
+npm start
+>>>>>>> origin/main

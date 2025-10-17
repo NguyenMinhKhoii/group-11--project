@@ -1,6 +1,26 @@
 {
+<<<<<<< HEAD
+  "name": "frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.12.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^5.4.20"
+=======
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0"
+>>>>>>> feature/redux-protected
   }
 }
