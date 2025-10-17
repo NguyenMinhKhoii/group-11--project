@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const User = require("./models/User"); // Model bạn đã có
 const authRoutes = require("./routes/auth"); // 🔹 Thêm dòng này
+const activityLogRoutes = require("./routes/activityLogRoutes"); // 🔹 SV3 Activity 5
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,7 @@ mongoose
 
 // 🔹 Thêm dòng này sau khi cấu hình middleware (express.json)
 app.use("/api/auth", authRoutes); // Đăng ký route cho Authentication
+app.use("/api/logs", activityLogRoutes); // 🔹 SV3 Activity 5: Activity Log Routes
 
 // API GET
 app.get("/users", async (req, res) => {

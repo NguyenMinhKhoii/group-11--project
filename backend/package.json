@@ -15,7 +15,9 @@
     "test:avatar-full": "node testCloudinaryAvatar.js",
     "demo:sv3": "node demoSV3Avatar.js",
     "test:email": "node testEmailConfig.js",
-    "demo:email": "node simpleEmailDemo.js"
+    "demo:email": "node simpleEmailDemo.js",
+    "test:logging": "node testActivityLogging.js",
+    "test:sv5": "node testActivityLogging.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
