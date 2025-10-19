@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Group 11 Dashboard (Redux Enhanced)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Redux CDN for Hoạt động 6 -->
+  <script src="https://unpkg.com/@reduxjs/toolkit@1.9.7/dist/redux-toolkit.umd.js"></script>
+  <style>
+    body { 
+      background: #f8f9fa;
+      min-height: 100vh; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding-top: 80px;
+    }
+    .navbar { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+      padding: 1rem 0;
+    }
+    .container {
+      max-width: 1400px;
+      padding: 0 2rem;
+    }
+    .card { 
+      border-radius: 20px; 
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border: none;
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+    .card-success { background: linear-gradient(135deg, #10b981, #047857); color: white; }
+    .card-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .card-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .card-body {
+      padding: 2.5rem;
+    }
+    .avatar-container {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid #dc3545;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+    }
+    .avatar-container.admin {
+      border: 4px solid #ef4444;
+      background: #fff;
+    }
+    .stats-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .stats-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .btn-custom {
+      border-radius: 30px;
+      padding: 15px 35px;
+      font-weight: 700;
+      margin: 8px;
+      font-size: 1rem;
+      min-width: 180px;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    .btn-custom:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    }
+    .welcome-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 25px;
+      padding: 3rem 2rem;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+    .dashboard-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    .role-badge { 
+      background: #fbbf24; 
+      color: #92400e; 
+      padding: 4px 12px; 
+      border-radius: 12px; 
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <div class="navbar-brand fw-bold">
+        <span class="text-primary">🏠</span> Group 11 Dashboard
+      </div>
+      <div class="d-flex align-items-center">
+        <span class="me-3">
+          <span class="role-badge" id="navUserRole">Regular User (user)</span>
+        </span>
+        <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Đăng xuất
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card card-primary p-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-2">Chào mừng, <span id="userName" data-user-name>Regular User</span>!</h3>
+              <p class="mb-1">Email: <span id="userEmail" data-user-email>user@gmail.com</span> | Role: <span id="userRoleText" data-user-role>USER</span> | ID: <span id="userId" data-user-id>3</span></p>
+              <p class="mb-0 opacity-75">Chào mừng bạn trở lại với hệ thống quản lý Group 11</p>
+            </div>
+            <div class="col-md-4 text-center">
+              <div class="d-flex flex-column align-items-center">
+                <div class="avatar-container mb-2" id="avatarContainer">
+                  <img id="userAvatar" src="https://via.placeholder.com/100/cccccc/666666?text=Avatar" alt="Avatar" class="w-100 h-100 rounded-circle object-fit-cover">
+                </div>
+                <small class="text-white opacity-75">Avatar</small>
+                <small id="avatarErrorText" class="text-white opacity-50" style="display:none">Lỗi tải avatar</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Dashboard Panel -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card card-success p-4">
+          <h4 class="mb-4" id="dashboardTitle">
+            <i class="bi bi-person-circle"></i> User Dashboard
+          </h4>
+          
+          <!-- Statistics -->
+          <div class="row mb-4" id="statsSection">
+            <div class="col-md-4">
+              <div class="stats-card">
+                <div class="stats-number" id="stat1">📝 12</div>
+                <div id="stat1Label">Hoạt động</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stats-card">
+                <div class="stats-number" id="stat2">🎯 8</div>
+                <div id="stat2Label">Mục tiêu hoàn thành</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stats-card">
+                <div class="stats-number" id="stat3">⭐ 4.5</div>
+                <div id="stat3Label">Điểm đánh giá</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+            <div class="text-center" id="actionButtons">
+            <button class="btn btn-success btn-custom" onclick="window.location.href='profile.html'">
+              <i class="bi bi-person"></i> 👤 Xem hồ sơ
+            </button>
+            <button class="btn btn-primary btn-custom">
+              <i class="bi bi-activity"></i> 📊 Hoạt động
+            </button>
+            <button class="btn btn-info btn-custom" onclick="openAvatarUploadModal()">
+              <i class="bi bi-cloud-upload"></i> 📷 Upload Avatar
+            </button>
+            <button class="btn btn-warning btn-custom" onclick="window.location.href='profile.html#password'">
+              <i class="bi bi-shield-lock"></i> 🔒 Đổi mật khẩu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin User Management -->
+    <div id="adminUserManagement" class="row mb-4" style="display: none;" data-admin-only>
+      <div class="col-12">
+        <div class="card p-4" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-white mb-0">
+              <i class="bi bi-crown"></i> � Admin Panel - User Management
+            </h4>
+            <button class="btn btn-light btn-sm" onclick="refreshUserList()">
+              <i class="bi bi-arrow-clockwise"></i> 🔄 Làm mới
+            </button>
+          </div>
+          
+          <!-- Admin Stats Row -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="adminTotalUsers">5</div>
+                <div class="text-white opacity-75">Total Users</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="adminActiveSessions">3</div>
+                <div class="text-white opacity-75">Active Sessions</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="adminSystemActivities">156</div>
+                <div class="text-white opacity-75">System Activities</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Admin Action Buttons -->
+          <div class="text-center mb-4">
+            <button class="btn btn-light btn-custom" onclick="refreshUserList()">
+              <i class="bi bi-people"></i> 👥 Quản lý User
+            </button>
+            <button class="btn btn-warning btn-custom">
+              <i class="bi bi-shield"></i> �️ Phân quyền
+            </button>
+            <button class="btn btn-info btn-custom" onclick="openAvatarUploadModal()">
+              <i class="bi bi-cloud-upload"></i> 📷 Upload Avatar
+            </button>
+            <button class="btn btn-secondary btn-custom">
+              <i class="bi bi-gear"></i> ⚙️ Cài đặt hệ thống
+            </button>
+          </div>
+          
+          <!-- User Management Table -->
+          <div class="bg-white rounded-3 p-4 mb-4">
+            <h5 class="text-dark mb-3">
+              <i class="bi bi-table"></i> Danh sách người dùng
+            </h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-dark">
+                  <tr>
+                    <th>ID</th>
+                    <th>Avatar</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <div>Đang tải danh sách người dùng...</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Add User Form -->
+          <div class="bg-white rounded-3 p-4">
+            <h6 class="text-dark mb-3">
+              <i class="bi bi-person-plus"></i> ➕ Thêm người dùng mới:
+            </h6>
+            <form id="addUserForm" class="row g-3">
+              <div class="col-md-3">
+                <input type="text" class="form-control" id="newUserName" placeholder="Tên đầy đủ" required>
+              </div>
+              <div class="col-md-3">
+                <input type="email" class="form-control" id="newUserEmail" placeholder="Email" required>
+              </div>
+              <div class="col-md-2">
+                <input type="password" class="form-control" id="newUserPassword" placeholder="Mật khẩu" required>
+              </div>
+              <div class="col-md-2">
+                <select class="form-control" id="newUserRole" required>
+                  <option value="user">User</option>
+                  <option value="moderator">Moderator</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-lg"></i> Thêm
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Activity Logs Section -->
+    <div id="adminActivityLogs" class="row mb-4" style="display: none;">
+      <div class="col-12">
+        <div class="card p-4" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-white mb-0">
+              <i class="bi bi-journal-text"></i> 📝 Activity Logs & Rate Limiting
+            </h4>
+            <div class="d-flex gap-2">
+              <button class="btn btn-light btn-sm" onclick="refreshActivityLogs()">
+                <i class="bi bi-arrow-clockwise"></i> 🔄 Refresh Logs
+              </button>
+              <button class="btn btn-warning btn-sm" onclick="checkRateLimitStatus()">
+                <i class="bi bi-shield-exclamation"></i> 🛡️ Rate Limit Status
+              </button>
+            </div>
+          </div>
+
+          <!-- Rate Limiting Stats -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="totalLogsCount">0</div>
+                <div class="text-white opacity-75">Total Logs</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="loginAttemptsCount">0</div>
+                <div class="text-white opacity-75">Login Attempts</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="blockedEmailsCount">0</div>
+                <div class="text-white opacity-75">Rate Limited</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="activeUsersCount">0</div>
+                <div class="text-white opacity-75">Active Users</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Logs Table -->
+          <div class="bg-white rounded-3 p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="text-dark mb-0">
+                <i class="bi bi-list-ul"></i> Recent Activity Logs
+              </h5>
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" id="logActionFilter" onchange="filterLogs()">
+                  <option value="">All Actions</option>
+                  <option value="LOGIN_SUCCESS">Login Success</option>
+                  <option value="LOGIN_FAILED">Login Failed</option>
+                  <option value="LOGIN_RATE_LIMITED">Rate Limited</option>
+                  <option value="USER_REGISTERED">User Registered</option>
+                </select>
+                <input type="number" class="form-control form-control-sm" id="logUserIdFilter" 
+                       placeholder="User ID" onchange="filterLogs()" style="width: 100px;">
+              </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>IP</th>
+                  </tr>
+                </thead>
+                <tbody id="activityLogsTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <div>Đang tải activity logs...</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="text-muted">
+                Showing <span id="logsShowing">0</span> of <span id="logsTotal">0</span> logs
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" id="logsPrevBtn" onclick="previousLogsPage()" disabled>
+                  ← Previous
+                </button>
+                <span class="align-self-center mx-3">Page <span id="currentLogsPage">1</span></span>
+                <button class="btn btn-sm btn-outline-primary" id="logsNextBtn" onclick="nextLogsPage()">
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rate Limit Status -->
+          <div class="bg-white rounded-3 p-4" id="rateLimitSection">
+            <h5 class="text-dark mb-3">
+              <i class="bi bi-shield-check"></i> Rate Limiting Status
+            </h5>
+            <div id="rateLimitContent">
+              <p class="text-muted">Click "Rate Limit Status" button to check current status</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo Refresh Token Section -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card p-4" style="background: linear-gradient(135deg, #e0f2fe, #b3e5fc);">
+          <h5 class="text-primary mb-3">
+            <i class="bi bi-arrow-clockwise"></i> 🔄 Demo Refresh Token
+          </h5>
+          <p class="mb-3">Ứng dụng này demo tính năng <strong>Refresh Token & Session Management</strong>:</p>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <ul class="list-unstyled">
+                <li class="mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i> 
+                  <strong>Access Token:</strong> Hết hạn sau 15 phút
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <strong>Refresh Token:</strong> Hết hạn sau 7 ngày
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <strong>Auto Refresh:</strong> Tự động làm mới token khi hết hạn
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-unstyled">
+                <li class="mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <strong>Token Rotation:</strong> Tạo token mới mỗi lần refresh
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <strong>Secure Logout:</strong> Thu hồi token khi đăng xuất
+                </li>
+              </ul>
+              
+              <!-- Demo Controls -->
+              <div class="mt-3">
+                <button class="btn btn-outline-primary btn-sm me-2" onclick="demoRefreshToken()">
+                  🔄 Test Refresh Token
+                </button>
+                <button class="btn btn-outline-warning btn-sm me-2" onclick="demoExpireToken()">
+                  ⏰ Simulate Token Expiry
+                </button>
+                <button class="btn btn-outline-info btn-sm" onclick="showTokenInfo()">
+                  ℹ️ View Token Info
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Token Status Display -->
+          <div id="tokenStatus" class="mt-3 p-3 bg-light rounded" style="display: none;">
+            <h6>Token Status:</h6>
+            <div id="tokenDetails"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Load avatar helper (injects real avatar when JWT present) -->
+  <script src="/public/js/load-avatar.js"></script>
+
+ <script>
+    // Load user data on page load
+    window.addEventListener('load', () => {
+        loadUserData();
+    });
+
+    function loadUserData() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!user.email) {
+            // Show test login buttons if no user logged in
+            showTestLoginOptions();
+        } else {
+            displayUserData(user);
+      // After displaying local user data, attempt to replace avatar with server-stored avatar
+      if (window.loadAvatarInto) {
+        window.loadAvatarInto('#avatarContainer').catch(err => console.error(err));
+      }
+        }
+    }
+
+    function displayUserData(user) {
+        // Display user info in welcome section
+        document.getElementById('userName').textContent = user.fullname || user.name || 'Regular User';
+        document.getElementById('userEmail').textContent = user.email || 'user@gmail.com';
+        document.getElementById('userRoleText').textContent = (user.role || 'user').toUpperCase();
+        document.getElementById('userId').textContent = user.id || '3';
+        
+        // Display role in navbar
+        const roleText = user.role === 'admin' ? 'Admin (admin)' : 
+                        user.role === 'moderator' ? 'Moderator (moderator)' : 
+                        'Regular User (user)';
+        document.getElementById('navUserRole').textContent = roleText;
+        
+        // Display avatar with better error handling
+        const avatarElement = document.getElementById('userAvatar');
+        const avatarUrl = user.avatar || `https://via.placeholder.com/120/667eea/white?text=${encodeURIComponent(user.fullname || 'User')}`;
+        
+        console.log('🖼️ Dashboard avatar URL:', avatarUrl);
+        avatarElement.src = avatarUrl;
+        
+        // Add comprehensive error handling
+    const avatarErrorText = document.getElementById('avatarErrorText');
+    avatarElement.onerror = function() {
+      console.log('❌ Dashboard avatar load failed, using fallback');
+      this.src = `https://via.placeholder.com/120/cccccc/666666?text=${encodeURIComponent(user.fullname || 'Avatar')}`;
+      this.onerror = null; // Prevent infinite loop
+      if (avatarErrorText) avatarErrorText.style.display = 'block';
+    };
+        
+    avatarElement.onload = function() {
+      console.log('✅ Dashboard avatar loaded successfully');
+      if (avatarErrorText) avatarErrorText.style.display = 'none';
+    };
+
+        // Show appropriate panels based on role
+        const userDashboard = document.querySelector('.card-success') || document.querySelector('.card'); // User Dashboard panel
+        const adminPanel = document.getElementById('adminUserManagement');
+        const dashboardTitle = document.getElementById('dashboardTitle');
+        const avatarContainer = document.getElementById('avatarContainer');
+        
+        // Update statistics and action buttons based on role
+        if (user.role === 'admin') {
+            // Update title for Admin
+            dashboardTitle.innerHTML = '<i class="bi bi-crown"></i> 👑 Admin Panel - User Management';
+            userDashboard.classList.remove('card-success');
+            userDashboard.classList.add('card-danger');
+            
+            // Add admin styling to avatar
+            if (avatarContainer) avatarContainer.classList.add('admin');
+            
+            // Update statistics for admin main dashboard
+            document.getElementById('stat1').textContent = '📝 12';
+            document.getElementById('stat1Label').textContent = 'Hoạt động';
+            document.getElementById('stat2').textContent = '🎯 8';
+            document.getElementById('stat2Label').textContent = 'Mục tiêu hoàn thành';
+            document.getElementById('stat3').textContent = '⭐ 4.5';
+            document.getElementById('stat3Label').textContent = 'Điểm đánh giá';
+            
+            adminPanel.style.display = 'block';
+            
+            // Show activity logs section for admin
+            const activityLogsSection = document.getElementById('adminActivityLogs');
+            if (activityLogsSection) {
+                activityLogsSection.style.display = 'block';
+                // Load activity logs and rate limit status
+                setTimeout(() => {
+                    refreshActivityLogs();
+                    checkRateLimitStatus();
+                }, 500);
+            }
+            
+            // Update admin panel stats
+            setTimeout(() => {
+                document.getElementById('adminTotalUsers').textContent = '5';
+                document.getElementById('adminActiveSessions').textContent = '3';
+                document.getElementById('adminSystemActivities').textContent = '156';
+            }, 100);
+            
+            loadUserList();
+            
+        } else if (user.role === 'moderator') {
+            // Update title for Moderator  
+            dashboardTitle.innerHTML = '<i class="bi bi-shield-check"></i> 🛡️ Moderator Panel';
+            userDashboard.classList.remove('card-success');
+            userDashboard.classList.add('card-warning');
+            
+            // Update statistics for moderator
+            document.getElementById('userStat').textContent = '18';
+            document.getElementById('sessionStat').textContent = '8';
+            document.getElementById('activityStat').textContent = '156';
+            
+            // Update labels for moderator context
+            document.querySelector('.card-body .row .col-4:nth-child(1) p.text-muted').textContent = 'Managed Users';
+            document.querySelector('.card-body .row .col-4:nth-child(2) p.text-muted').textContent = 'Active Reports';
+            document.querySelector('.card-body .row .col-4:nth-child(3) p.text-muted').textContent = 'Resolved Issues';
+            
+            // Update action buttons for moderator
+            document.getElementById('actionButtons').innerHTML = `
+              <button class="btn btn-warning btn-custom">
+                <i class="bi bi-flag"></i> 🚩 Báo cáo
+              </button>
+              <button class="btn btn-primary btn-custom">
+                <i class="bi bi-eye"></i> 👁️ Giám sát
+              </button>
+              <button class="btn btn-info btn-custom" onclick="window.location.href='upload-avatar.html'">
+                <i class="bi bi-cloud-upload"></i> 📷 Upload Avatar
+              </button>
+              <button class="btn btn-success btn-custom">
+                <i class="bi bi-check-circle"></i> ✅ Duyệt nội dung
+              </button>
+            `;
+            
+            adminPanel.style.display = 'block';
+            loadUserList();
+            
+        } else {
+            // Keep User Dashboard
+            dashboardTitle.innerHTML = '<i class="bi bi-person-circle"></i> 👤 User Dashboard';
+            userDashboard.classList.add('card-success');
+            adminPanel.style.display = 'none';
+        }
+    }
+
+    async function showTestLoginOptions() {
+        const dashboardTitle = document.getElementById('dashboardTitle');
+        dashboardTitle.innerHTML = '🔐 Vui lòng đăng nhập';
+        
+        // Create login buttons
+        const loginSection = document.querySelector('.card-success .card-body');
+        if (loginSection) {
+            loginSection.innerHTML = `
+                <div class="text-center">
+                    <h4>🔐 Test Login</h4>
+                    <p class="mb-4">Chọn tài khoản để đăng nhập:</p>
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-danger btn-lg" onclick="testLogin('admin')">
+                            👑 Đăng nhập Admin
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="testLogin('user')">
+                            👤 Đăng nhập User
+                        </button>
+                        <button class="btn btn-success btn-lg" onclick="window.location.href='login.html'">
+                            🔐 Đăng nhập thông thường
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    async function testLogin(type) {
+        const credentials = type === 'admin' 
+            ? { email: 'admin@test.com', password: '123456' }
+            : { email: 'user@test.com', password: '123456' };
+        
+        try {
+            const response = await fetch('http://localhost:5173/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            });
+            
+            const data = await response.json();
+            console.log('🔐 Login response:', data);
+            
+      if (data.success) {
+        // Support response shapes: { success, token, user } and { success, data: { token, user } }
+        const respUser = data.user || (data.data && data.data.user) || null;
+        const respToken = data.token || (data.data && data.data.token) || null;
+
+        if (respUser) localStorage.setItem('user', JSON.stringify(respUser));
+        if (respToken) {
+          // store token under both keys for compatibility
+          localStorage.setItem('token', respToken);
+          localStorage.setItem('authToken', respToken);
+        }
+
+        alert('✅ Đăng nhập thành công!');
+        // Try to load avatar immediately (if loader is present)
+        if (window.loadAvatarInto) {
+          try { window.loadAvatarInto('#avatarContainer'); } catch(e) { console.warn(e); }
+        }
+        window.location.reload();
+      } else {
+        alert('❌ Đăng nhập thất bại: ' + data.message);
+      }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('❌ Lỗi kết nối server!');
+        }
+    }
+
+    function logout() {
+        if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+            localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('authToken');
+            alert('👋 Đã đăng xuất!');
+      window.location.href = 'login.html';
+        }
+    }
+
+    // User Management Functions
+    let allUsers = [];
+
+    async function loadUserList() {
+        try {
+            console.log('🔄 Loading user list from API...');
+            const response = await fetch('/api/users');
+            const result = await response.json();
+            
+            console.log('📋 API Response:', result);
+            
+            if (result.success) {
+                allUsers = result.users;
+                console.log(`✅ Loaded ${allUsers.length} users from server`);
+                displayUserList(allUsers);
+                
+                // Update admin stats with real data
+                updateAdminStatsFromAPI(allUsers);
+            } else {
+                console.error('Failed to load users:', result.message);
+                showDemoUsers();
+            }
+        } catch (error) {
+            console.error('❌ Error loading users:', error);
+            // Show demo users if API fails
+            showDemoUsers();
+        }
+    }
+
+    // Update admin stats with real API data
+    function updateAdminStatsFromAPI(users) {
+        // Update Total Users
+        const totalUsersEl = document.getElementById('adminTotalUsers');
+        if (totalUsersEl) {
+            totalUsersEl.textContent = users.length;
+        }
+        
+        // Update Active Sessions (count users with different roles)
+        const activeSessions = users.filter(u => u.role).length;
+        const activeSessionsEl = document.getElementById('adminActiveSessions');
+        if (activeSessionsEl) {
+            activeSessionsEl.textContent = activeSessions;
+        }
+        
+        // Update System Activities (calculated based on users)
+        const systemActivitiesEl = document.getElementById('adminSystemActivities');
+        if (systemActivitiesEl) {
+            systemActivitiesEl.textContent = users.length * 15 + Math.floor(Math.random() * 100);
+        }
+        
+        console.log('📊 Admin stats updated with real data');
+    }
+
+    function showDemoUsers() {
+        allUsers = [
+            {
+                id: 1,
+                fullname: "Admin User",
+                email: "admin@test.com",
+                role: "admin",
+                avatar: "https://via.placeholder.com/50/ff6b6b/white?text=A"
+            },
+            {
+                id: 2,
+                fullname: "Moderator User", 
+                email: "mod@test.com",
+                role: "moderator",
+                avatar: "https://via.placeholder.com/50/4ecdc4/white?text=M"
+            },
+            {
+                id: 3,
+                fullname: "Regular User",
+                email: "user@test.com", 
+                role: "user",
+                avatar: "https://via.placeholder.com/50/95e1d3/white?text=U"
+            }
+        ];
+        displayUserList(allUsers);
+    }
+
+    function displayUserList(users) {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            
+            // Role badge colors
+            const roleColors = {
+                admin: 'bg-danger',
+                moderator: 'bg-warning', 
+                user: 'bg-success'
+            };
+            
+            row.innerHTML = `
+                <td><strong>#${user.id}</strong></td>
+                <td>
+                    <img src="${user.avatar || 'https://via.placeholder.com/40/ccc/666?text=?'}" 
+                         class="rounded-circle" width="40" height="40" 
+                         onerror="this.src='https://via.placeholder.com/40/ccc/666?text=?'">
+                </td>
+                <td><strong>${user.fullname || user.name || 'Unknown'}</strong></td>
+                <td>${user.email}</td>
+                <td><span class="badge ${roleColors[user.role] || 'bg-secondary'}">${user.role || 'user'}</span></td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-outline-primary" onclick="editUser('${user.email}')" title="Sửa">
+                            ✏️
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="deleteUser('${user.email}')" title="Xóa">
+                            🗑️
+                        </button>
+                        <button class="btn btn-outline-info" onclick="viewUserDetails('${user.email}')" title="Chi tiết">
+                            👁️
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function refreshUserList() {
+        document.getElementById('userTableBody').innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div>Đang tải lại...</div>
+                </td>
+            </tr>
+        `;
+        setTimeout(() => loadUserList(), 500);
+    }
+
+    async function addNewUser(event) {
+        event.preventDefault();
+        
+        const name = document.getElementById('newUserName').value;
+        const email = document.getElementById('newUserEmail').value;
+        const password = document.getElementById('newUserPassword').value;
+        const role = document.getElementById('newUserRole').value;
+
+        try {
+            const response = await fetch('http://localhost:5173/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullname: name, email, password, role })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Thêm người dùng thành công!');
+                document.getElementById('addUserForm').reset();
+                loadUserList();
+            } else {
+                alert('❌ Lỗi: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ Lỗi kết nối: ' + error.message);
+        }
+    }
+
+    async function deleteUser(email) {
+        if (confirm(`🗑️ Bạn có chắc chắn muốn xóa người dùng "${email}"?`)) {
+            try {
+                const response = await fetch(`/api/users/${encodeURIComponent(email)}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Xóa người dùng thành công!');
+                    loadUserList();
+                } else {
+                    alert('❌ Lỗi: ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Lỗi kết nối: ' + error.message);
+            }
+        }
+    }
+
+    function editUser(email) {
+        const user = allUsers.find(u => u.email === email);
+        if (user) {
+            const newName = prompt('Tên mới:', user.fullname || user.name);
+            const newRole = prompt('Role mới (admin/moderator/user):', user.role);
+            
+            if (newName && newRole) {
+                updateUser(email, newName, newRole);
+            }
+        }
+    }
+
+    async function updateUser(email, name, role) {
+        try {
+            const response = await fetch(`/api/users/${encodeURIComponent(email)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullname: name, role })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Cập nhật người dùng thành công!');
+                loadUserList();
+            } else {
+                alert('❌ Lỗi: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ Lỗi kết nối: ' + error.message);
+        }
+    }
+
+    function viewUserDetails(email) {
+        const user = allUsers.find(u => u.email === email);
+        if (user) {
+            alert(`👤 Chi tiết người dùng:
+            
+ID: ${user.id}
+Tên: ${user.fullname || user.name}
+Email: ${user.email}
+Role: ${user.role}
+Avatar: ${user.avatar ? 'Có' : 'Không'}
+            `);
+        }
+    }
+
+    // Demo Refresh Token Functions
+    function demoRefreshToken() {
+        const statusDiv = document.getElementById('tokenStatus');
+        const detailsDiv = document.getElementById('tokenDetails');
+        
+        statusDiv.style.display = 'block';
+        detailsDiv.innerHTML = `
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+            <span>Đang refresh token...</span>
+        `;
+        
+        setTimeout(() => {
+            const newToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + btoa(JSON.stringify({
+                userId: 3,
+                email: 'user@gmail.com',
+                role: 'user',
+                exp: Math.floor(Date.now() / 1000) + (15 * 60) // 15 minutes
+            }));
+            
+            localStorage.setItem('token', newToken);
+            localStorage.setItem('refreshToken', 'refresh_' + Date.now());
+            
+            detailsDiv.innerHTML = `
+                <div class="alert alert-success mb-2">
+                    <strong>✅ Token refreshed successfully!</strong>
+                </div>
+                <small class="text-muted">
+                    <strong>New Access Token:</strong> ${newToken.substring(0, 50)}...<br>
+                    <strong>Expires:</strong> ${new Date(Date.now() + 15*60*1000).toLocaleString()}<br>
+                    <strong>Refresh Token:</strong> Valid for 7 days
+                </small>
+            `;
+        }, 1500);
+    }
+    
+    function demoExpireToken() {
+        const statusDiv = document.getElementById('tokenStatus');
+        const detailsDiv = document.getElementById('tokenDetails');
+        
+        statusDiv.style.display = 'block';
+        detailsDiv.innerHTML = `
+            <div class="alert alert-warning mb-2">
+                <strong>⚠️ Access Token Expired!</strong>
+            </div>
+            <small class="text-muted">
+                Simulating expired token scenario...<br>
+                Auto-refresh will trigger in a real application.
+            </small>
+            <div class="mt-2">
+                <button class="btn btn-primary btn-sm" onclick="demoRefreshToken()">
+                    🔄 Auto Refresh Now
+                </button>
+            </div>
+        `;
+    }
+    
+    function showTokenInfo() {
+        const statusDiv = document.getElementById('tokenStatus');
+        const detailsDiv = document.getElementById('tokenDetails');
+        const token = localStorage.getItem('token') || 'No token found';
+        const refreshToken = localStorage.getItem('refreshToken') || 'No refresh token';
+        
+        statusDiv.style.display = 'block';
+        detailsDiv.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Access Token:</strong><br>
+                    <small class="text-muted font-monospace">${token.substring(0, 100)}${token.length > 100 ? '...' : ''}</small>
+                </div>
+                <div class="col-md-6">
+                    <strong>Refresh Token:</strong><br>
+                    <small class="text-muted font-monospace">${refreshToken}</small><br><br>
+                    <strong>Status:</strong> <span class="badge bg-success">Active</span><br>
+                    <strong>Last Refresh:</strong> ${new Date().toLocaleString()}
+                </div>
+            </div>
+        `;
+    }
+
+    // Add some interactive features
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click effects to buttons
+        const buttons = document.querySelectorAll('.btn-custom');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!this.onclick) {
+                    this.classList.add('animate__pulse');
+                    setTimeout(() => {
+                        this.classList.remove('animate__pulse');
+                    }, 1000);
+                }
+            });
+        });
+        
+    // NOTE: do NOT auto-create a demo token here. Creating a non-JWT demo token
+    // breaks server-side JWT verification (jwt malformed). Only set tokens
+    // after a successful login flow.
+
+        // Add event listener for add user form
+        const addUserForm = document.getElementById('addUserForm');
+        if (addUserForm) {
+            addUserForm.addEventListener('submit', addNewUser);
+        }
+    });
+</script>
+  <!-- Avatar Upload Modal -->
+  <div class="modal" tabindex="-1" id="avatarUploadModal">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Avatar</h5>
+          <button type="button" class="btn-close" onclick="closeAvatarUploadModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div id="dropZoneModal" class="p-4 text-center" style="border:2px dashed #ddd; border-radius:8px; cursor:pointer;">
+            <div id="dropText">Kéo thả ảnh vào đây hoặc click để chọn (Max 5MB)</div>
+            <input type="file" id="avatarFileModal" accept="image/*" style="display:none">
+            <img id="avatarPreviewModal" src="" style="max-width:180px; display:none; margin-top:12px; border-radius:8px">
+          </div>
+          <div id="uploadProgressModal" class="mt-3" style="display:none">
+            <div class="progress"><div id="uploadBarModal" class="progress-bar" style="width:0%"></div></div>
+            <div id="uploadStatusModal" class="small mt-2 text-muted">Đang upload...</div>
+          </div>
+          <div id="uploadResultModal" class="mt-3"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAvatarUploadModal()">Đóng</button>
+          <button id="btnUploadModal" class="btn btn-primary" onclick="submitAvatarModal()" disabled>Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Avatar modal logic
+    const avatarFileModal = document.getElementById('avatarFileModal');
+    const dropZoneModal = document.getElementById('dropZoneModal');
+    const previewModal = document.getElementById('avatarPreviewModal');
+    const btnUploadModal = document.getElementById('btnUploadModal');
+
+    function openAvatarUploadModal() {
+      const modal = new bootstrap.Modal(document.getElementById('avatarUploadModal'));
+      modal.show();
+      // reset
+      avatarFileModal.value = '';
+      previewModal.style.display = 'none';
+      btnUploadModal.disabled = true;
+      document.getElementById('uploadProgressModal').style.display = 'none';
+      document.getElementById('uploadResultModal').innerHTML = '';
+    }
+
+    function closeAvatarUploadModal() {
+      const modalEl = document.getElementById('avatarUploadModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+    }
+
+    dropZoneModal.addEventListener('click', () => avatarFileModal.click());
+    dropZoneModal.addEventListener('dragover', (e) => { e.preventDefault(); dropZoneModal.classList.add('dragover'); });
+    dropZoneModal.addEventListener('dragleave', () => dropZoneModal.classList.remove('dragover'));
+    dropZoneModal.addEventListener('drop', (e) => { e.preventDefault(); dropZoneModal.classList.remove('dragover'); handleModalFile(e.dataTransfer.files[0]); });
+    avatarFileModal.addEventListener('change', (e) => { if (e.target.files[0]) handleModalFile(e.target.files[0]); });
+
+    function handleModalFile(file) {
+      if (!file.type.startsWith('image/')) return alert('Vui lòng chọn file ảnh');
+      if (file.size > 5 * 1024 * 1024) return alert('File quá lớn (tối đa 5MB)');
+      const reader = new FileReader();
+      reader.onload = (ev) => { previewModal.src = ev.target.result; previewModal.style.display = 'block'; btnUploadModal.disabled = false; };
+      reader.readAsDataURL(file);
+      // store selected file on element for upload
+      avatarFileModal._selected = file;
+    }
+
+    async function submitAvatarModal() {
+      const file = avatarFileModal._selected;
+      if (!file) return alert('Chưa chọn file');
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      if (!token) return alert('Vui lòng đăng nhập trước');
+
+      const form = new FormData();
+      form.append('avatar', file);
+      // attach current user's email so the dev-fallback server can persist avatar for mock users
+      try {
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (currentUser && currentUser.email) form.append('email', currentUser.email);
+      } catch(e) { /* ignore */ }
+
+      document.getElementById('uploadProgressModal').style.display = 'block';
+      document.getElementById('uploadBarModal').style.width = '0%';
+      document.getElementById('uploadStatusModal').textContent = 'Đang upload...';
+
+      try {
+        // Helper to send via XHR and return a promise
+        const sendTo = (url) => new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', url);
+          xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              document.getElementById('uploadBarModal').style.width = pct + '%';
+              document.getElementById('uploadStatusModal').textContent = `Đang upload... ${pct}%`;
+            }
+          });
+
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+              const status = xhr.status;
+              const text = xhr.responseText;
+              if (status >= 200 && status < 300) return resolve({ status, text });
+              return reject({ status, text });
+            }
+          };
+
+          xhr.onerror = () => reject({ status: 0, text: 'Network error' });
+          xhr.send(form);
+        });
+
+        // Try same-origin first, then common backend ports
+        const candidates = [
+          '/api/avatar/upload',
+          'http://localhost:5000/api/avatar/upload',
+          'http://localhost:3000/api/avatar/upload'
+        ];
+
+        let lastError = null;
+        for (const url of candidates) {
+          try {
+            const result = await sendTo(url);
+            // success
+            let successMsg = '<div class="alert alert-success">Upload thành công!</div>';
+            try {
+              const parsed = JSON.parse(result.text);
+              if (parsed && parsed.message) successMsg = `<div class="alert alert-success">${parsed.message}</div>`;
+
+              // If server returned an avatar path/url, normalize and persist it so UI updates immediately
+              let avatarUrl = parsed && (parsed.data && parsed.data.avatar) || parsed && parsed.avatar || null;
+              if (avatarUrl) {
+                // If returned path is relative (starts with '/'), make it absolute
+                if (avatarUrl.startsWith('/')) avatarUrl = window.location.origin + avatarUrl;
+
+                try {
+                  const stored = JSON.parse(localStorage.getItem('user') || '{}');
+                  stored.avatar = avatarUrl;
+                  localStorage.setItem('user', JSON.stringify(stored));
+                } catch (e) {
+                  console.warn('Could not persist avatar to localStorage', e);
+                }
+
+                // Update the dashboard avatar element immediately
+                updateAvatarDisplay({ avatar: avatarUrl });
+                // Also try to persist avatar to the mock auth users (so login/logout cycles will see it)
+                try {
+                  const stored = JSON.parse(localStorage.getItem('user') || '{}');
+                  if (stored && stored.email) {
+                    // call mock API to update avatar for this email
+                    fetch(`/api/auth/users/${encodeURIComponent(stored.email)}/avatar`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ avatar: avatarUrl })
+                    }).then(r => r.json()).then(j => console.log('Persisted avatar to mock auth:', j)).catch(e => console.warn('Could not persist avatar to mock auth', e));
+                  }
+                } catch(e) { /* ignore */ }
+              }
+            } catch(e) {
+              console.warn('Could not parse upload response JSON', e);
+            }
+
+            document.getElementById('uploadResultModal').innerHTML = successMsg;
+            // attempt to reload avatar via helper if present
+            if (window.loadAvatarInto) window.loadAvatarInto('#avatarContainer');
+            return;
+          } catch (errObj) {
+            lastError = errObj;
+            // If 404, try next candidate; otherwise show the error
+            if (errObj && errObj.status === 404) {
+              // try next
+              continue;
+            } else {
+              const msg = errObj && errObj.text ? errObj.text : 'Lỗi kết nối';
+              document.getElementById('uploadResultModal').innerHTML = `<div class="alert alert-danger">Upload thất bại: ${errObj.status || '?'} - ${msg}</div>`;
+              return;
+            }
+          }
+        }
+
+        // If we exhausted candidates
+        document.getElementById('uploadResultModal').innerHTML = `<div class="alert alert-danger">Upload thất bại: Không tìm thấy endpoint (404). Cố gắng chạy backend trên cổng đúng hoặc cấu hình proxy.</div>`;
+
+      } catch (err) {
+        console.error('Upload error', err);
+        document.getElementById('uploadResultModal').innerHTML = '<div class="alert alert-danger">Lỗi: ' + (err && err.message ? err.message : err) + '</div>';
+      }
+    }
+  </script>
+
+  <!-- Activity Logs JavaScript -->
+  <script>
+    // Activity logs pagination
+    let currentLogsPage = 1;
+    let logsPerPage = 10;
+    let totalLogs = 0;
+
+    // Load activity logs
+    async function refreshActivityLogs() {
+      try {
+        const actionFilter = document.getElementById('logActionFilter')?.value || '';
+        const userIdFilter = document.getElementById('logUserIdFilter')?.value || '';
+        
+        const params = new URLSearchParams({
+          limit: logsPerPage,
+          offset: (currentLogsPage - 1) * logsPerPage
+        });
+        
+        if (actionFilter) params.append('action', actionFilter);
+        if (userIdFilter) params.append('userId', userIdFilter);
+        
+        console.log('🔄 Loading activity logs...');
+        const response = await fetch(`/api/activity-logs?${params}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          totalLogs = data.total;
+          displayActivityLogs(data.logs);
+          updateLogsPagination();
+          updateLogsStats(data.logs.length, data.total);
+        } else {
+          console.error('Failed to load activity logs:', data.message);
+          showNoLogs('Failed to load logs');
+        }
+      } catch (error) {
+        console.error('Error loading activity logs:', error);
+        showNoLogs('Error loading logs');
+      }
+    }
+
+    // Display activity logs in table
+    function displayActivityLogs(logs) {
+      const tbody = document.getElementById('activityLogsTableBody');
+      if (!tbody) return;
+      
+      if (logs.length === 0) {
+        showNoLogs('No activity logs found');
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      
+      logs.forEach((log, index) => {
+        const row = document.createElement('tr');
+        
+        // Format timestamp
+        const timestamp = new Date(log.timestamp).toLocaleString('vi-VN');
+        
+        // Format action with badge
+        const actionBadge = getActionBadge(log.action);
+        
+        // Format user info - use userName from enhanced API response
+        const userInfo = log.userName || log.userEmail || 'Unknown';
+        
+        // Format details
+        const details = formatLogDetails(log.details);
+        
+        row.innerHTML = `
+          <td><strong>#${log.id}</strong></td>
+          <td><small>${timestamp}</small></td>
+          <td><small>${userInfo}</small></td>
+          <td>${actionBadge}</td>
+          <td><small>${details}</small></td>
+          <td><small>${log.ip || '127.0.0.1'}</small></td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+
+    // Get action badge with appropriate color
+    function getActionBadge(action) {
+      const badges = {
+        'LOGIN_SUCCESS': '<span class="badge bg-success">Login Success</span>',
+        'LOGIN_FAILED': '<span class="badge bg-danger">Login Failed</span>',
+        'LOGIN_RATE_LIMITED': '<span class="badge bg-warning">Rate Limited</span>',
+        'USER_REGISTERED': '<span class="badge bg-info">User Registered</span>',
+        'USER_DELETED': '<span class="badge bg-danger">User Deleted</span>',
+        'USER_UPDATED': '<span class="badge bg-primary">User Updated</span>'
+      };
+      
+      return badges[action] || `<span class="badge bg-secondary">${action}</span>`;
+    }
+
+    // Format log details
+    function formatLogDetails(details) {
+      if (!details || typeof details !== 'object') return '-';
+      
+      const formatted = [];
+      for (const [key, value] of Object.entries(details)) {
+        formatted.push(`${key}: ${value}`);
+      }
+      
+      return formatted.join(', ') || '-';
+    }
+
+    // Show no logs message
+    function showNoLogs(message = 'No logs available') {
+      const tbody = document.getElementById('activityLogsTableBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            <i class="bi bi-inbox"></i> ${message}
+          </td>
+        </tr>
+      `;
+    }
+
+    // Update logs pagination
+    function updateLogsPagination() {
+      const totalPages = Math.ceil(totalLogs / logsPerPage);
+      
+      document.getElementById('currentLogsPage').textContent = currentLogsPage;
+      document.getElementById('logsPrevBtn').disabled = currentLogsPage <= 1;
+      document.getElementById('logsNextBtn').disabled = currentLogsPage >= totalPages;
+      
+      const showing = Math.min((currentLogsPage - 1) * logsPerPage + logsPerPage, totalLogs);
+      document.getElementById('logsShowing').textContent = showing;
+      document.getElementById('logsTotal').textContent = totalLogs;
+    }
+
+    // Update logs statistics
+    function updateLogsStats(currentCount, total) {
+      document.getElementById('totalLogsCount').textContent = total;
+      
+      // Count different types of activities
+      // This is simplified - in real app would come from API
+      const loginAttempts = Math.floor(total * 0.7); // Mock data
+      const rateLimited = Math.floor(total * 0.1);
+      const activeUsers = Math.floor(total * 0.3);
+      
+      document.getElementById('loginAttemptsCount').textContent = loginAttempts;
+      document.getElementById('blockedEmailsCount').textContent = rateLimited;
+      document.getElementById('activeUsersCount').textContent = activeUsers;
+    }
+
+    // Pagination functions
+    function previousLogsPage() {
+      if (currentLogsPage > 1) {
+        currentLogsPage--;
+        refreshActivityLogs();
+      }
+    }
+
+    function nextLogsPage() {
+      const totalPages = Math.ceil(totalLogs / logsPerPage);
+      if (currentLogsPage < totalPages) {
+        currentLogsPage++;
+        refreshActivityLogs();
+      }
+    }
+
+    // Filter logs
+    function filterLogs() {
+      currentLogsPage = 1; // Reset to first page
+      refreshActivityLogs();
+    }
+
+    // Check rate limit status
+    async function checkRateLimitStatus() {
+      try {
+        console.log('🔍 Checking rate limit status...');
+        const response = await fetch('/api/rate-limit-status');
+        const data = await response.json();
+        
+        if (data.success) {
+          displayRateLimitStatus(data);
+        } else {
+          console.error('Failed to get rate limit status:', data.message);
+        }
+      } catch (error) {
+        console.error('Error checking rate limit status:', error);
+      }
+    }
+
+    // Display rate limit status
+    function displayRateLimitStatus(data) {
+      const content = document.getElementById('rateLimitContent');
+      if (!content) return;
+      
+      if (data.rateLimitStatus.length === 0) {
+        content.innerHTML = `
+          <div class="alert alert-success">
+            <i class="bi bi-shield-check"></i> No rate limiting active. All users can login normally.
+          </div>
+          <p class="text-muted mb-0">
+            <strong>Policy:</strong> Max ${data.maxAttempts} attempts per ${data.windowMinutes} minutes
+          </p>
+        `;
+        return;
+      }
+      
+      let html = `
+        <div class="alert alert-warning">
+          <i class="bi bi-shield-exclamation"></i> 
+          ${data.rateLimitStatus.length} email(s) are currently rate limited
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Attempts</th>
+                <th>Status</th>
+                <th>Reset Time</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      data.rateLimitStatus.forEach(status => {
+        const statusBadge = status.isLimited ? 
+          '<span class="badge bg-danger">Blocked</span>' :
+          '<span class="badge bg-warning">Warning</span>';
+        
+        const resetTime = status.nextResetTime ? 
+          new Date(status.nextResetTime).toLocaleString('vi-VN') : 
+          '-';
+        
+        html += `
+          <tr>
+            <td>${status.email}</td>
+            <td>${status.attemptCount}/${status.maxAttempts}</td>
+            <td>${statusBadge}</td>
+            <td><small>${resetTime}</small></td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+        <p class="text-muted mb-0 mt-2">
+          <strong>Policy:</strong> Max ${data.maxAttempts} attempts per ${data.windowMinutes} minutes
+        </p>
+      `;
+      
+      content.innerHTML = html;
+    }
+  </script>
+
+  <script>
+    // Avatar loading and management functions
+    async function loadUserAvatar() {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.email) return;
+        
+        const avatarImg = document.getElementById('userAvatar');
+        if (!avatarImg) return;
+        
+        // First, try to load uploaded avatar from server
+        try {
+          const response = await fetch(`/api/avatar/${encodeURIComponent(user.email)}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.avatar) {
+              avatarImg.src = data.avatar;
+              console.log('✅ Custom avatar loaded from server for:', user.email);
+              return;
+            }
+          }
+        } catch (error) {
+          console.log('ℹ️ No custom avatar found, checking user profile...');
+        }
+        
+        // If no uploaded avatar, use user's profile avatar (from registration)
+        if (user.avatar) {
+          avatarImg.src = user.avatar;
+          console.log('✅ Profile avatar loaded for:', user.email);
+          return;
+        }
+        
+        // Fallback: Generate default avatar based on user info
+        const initials = (user.fullname || user.name || user.email)
+          .split(' ')
+          .map(n => n[0])
+          .join('')
+          .toUpperCase()
+          .substring(0, 2);
+        
+        const roleColors = {
+          'admin': 'dc3545',
+          'user': '007bff',
+          'moderator': 'ffc107'
+        };
+        
+        const color = roleColors[user.role] || roleColors['user'];
+        const fallbackAvatar = `https://via.placeholder.com/150x150/${color}/ffffff?text=${initials}`;
+        
+        avatarImg.src = fallbackAvatar;
+        console.log('✅ Fallback avatar generated for:', user.email);
+        
+      } catch (error) {
+        console.log('❌ Error loading avatar:', error.message);
+      }
+    }
+    
+    // Update avatar after successful upload
+    function updateAvatarDisplay(avatarData) {
+      if (avatarData && avatarData.avatar) {
+        const avatarImg = document.getElementById('userAvatar');
+        if (avatarImg) {
+          avatarImg.src = avatarData.avatar;
+          console.log('✅ Avatar display updated');
+        }
+      }
+    }
+    
+    // Load avatar when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserAvatar();
+    });
+    
+    // Also load when user data changes
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'user') {
+        loadUserAvatar();
+      }
+    });
+  </script>
+
+  <!-- Redux Integration Scripts - Hoạt động 6 -->
+  <script src="/js/redux-store.js"></script>
+  <script src="/js/redux-dashboard.js"></script>
+  <script src="/js/activity6-test-suite.js"></script>
+
+</body>
+</html>

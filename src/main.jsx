@@ -1,10 +1,16 @@
+/**
+ * Main Entry Point with Redux Store
+ * Hoạt động 6 - Frontend Redux & Protected Routes
+ */
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { BrowserRouter } from "react-router-dom";
+
+// Note: Router is now handled inside App.jsx with Redux Provider
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
+  <React.StrictMode>
     <App />
-  </BrowserRouter>
+  </React.StrictMode>
 );
