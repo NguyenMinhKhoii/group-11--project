@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Login - Group 11</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4>🏠 Simple Login - Group 11 (NO Redux)</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="alertContainer"></div>
+                        
+                        <form id="simpleLoginForm">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">📧 Email</label>
+                                <input type="email" class="form-control" id="email" value="admin@test.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">🔐 Mật khẩu</label>
+                                <input type="password" class="form-control" id="password" value="123456" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                🚀 Đăng nhập Simple
+                            </button>
+                        </form>
+                        
+                        <hr>
+                        
+                        <div class="text-center">
+                            <small class="text-muted">
+                                📚 Test Accounts:<br>
+                                Admin: admin@test.com / 123456<br>
+                                User: user@test.com / 123456
+                            </small>
+                        </div>
+                        
+                        <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                            <h6>🔧 Simple Login Test (No Redux)</h6>
+                            <div id="apiResponse" style="font-family: monospace; font-size: 12px;">
+                                Ready to test...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple login without Redux
+        document.getElementById('simpleLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const responseDiv = document.getElementById('apiResponse');
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            // Clear previous alerts
+            document.getElementById('alertContainer').innerHTML = '';
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '⏳ Đang đăng nhập...';
+                responseDiv.innerHTML = 'Sending request to /api/auth/login...';
+                
+                console.log('Making request to:', '/api/auth/login');
+                console.log('With data:', { email, password });
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                responseDiv.innerHTML = `
+Status: ${response.status}
+Headers: ${JSON.stringify([...response.headers.entries()], null, 2)}
+Body: ${responseText}
+                `;
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    showAlert('success', '✅ Login thành công! Redirecting...');
+                    
+                    // Store basic auth info
+                    localStorage.setItem('simpleAuth', JSON.stringify(data));
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 1000);
+                } else {
+                    showAlert('error', '❌ Login failed: ' + responseText);
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                responseDiv.innerHTML = `Error: ${error.message}`;
+                showAlert('error', '❌ Connection error: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '🚀 Đăng nhập Simple';
+            }
+        });
+        
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass} alert-dismissible fade show">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

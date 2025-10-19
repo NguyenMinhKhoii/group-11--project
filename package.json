@@ -9,8 +9,10 @@
     "start:backend": "node backend/server.js"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.9.1",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
+    "bootstrap": "^5.3.8",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -22,6 +24,7 @@
     "nodemailer": "^7.0.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.1",
     "sharp": "^0.32.6"
   },

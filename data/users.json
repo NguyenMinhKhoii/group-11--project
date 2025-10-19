@@ -1,14 +1,5 @@
 [
   {
-    "id": "1",
-    "name": "Admin User",
-    "email": "admin@gmail.com",
-    "password": "123456",
-    "role": "admin",
-    "createdAt": "2025-10-17T00:00:00.000Z",
-    "avatar": "https://via.placeholder.com/150x150/007bff/ffffff?text=A1"
-  },
-  {
     "id": "2",
     "name": "Moderator User",
     "email": "mod@gmail.com",
@@ -16,15 +7,6 @@
     "role": "moderator",
     "createdAt": "2025-10-17T00:00:00.000Z",
     "avatar": "https://via.placeholder.com/150x150/ffc107/000000?text=M2"
-  },
-  {
-    "id": "3",
-    "name": "Regular User",
-    "email": "user@gmail.com",
-    "password": "123456",
-    "role": "user",
-    "createdAt": "2025-10-17T00:00:00.000Z",
-    "avatar": "https://via.placeholder.com/150x150/28a745/ffffff?text=U3"
   },
   {
     "id": "4",
@@ -39,7 +21,31 @@
     "name": "Hà Quốc Khởi",
     "email": "khoi1@gmail.com",
     "password": "123456",
+    "role": "admin",
+    "createdAt": "2025-10-17T14:26:20.628Z",
+    "fullname": "Hà Quốc Khởi",
+    "updatedAt": "2025-10-19T10:52:47.091Z"
+  },
+  {
+    "id": "ADMIN-1760871593838-005-X59T",
+    "name": "Nguyễn Minh Khôi",
+    "fullname": "Nguyễn Minh Khôi",
+    "email": "Mkhoi@gmail.com",
+    "password": "123456",
+    "role": "admin",
+    "createdAt": "2025-10-19T10:59:53.838Z",
+    "registrationTimestamp": 1760871593838,
+    "avatar": "https://via.placeholder.com/150x150/dc3545/ffffff?text=NM"
+  },
+  {
+    "id": "USER-1760871689826-005-3G99",
+    "name": "Hà Quốc Khởi",
+    "fullname": "Hà Quốc Khởi",
+    "email": "khoi12@gmail.com",
+    "password": "123456",
     "role": "user",
-    "createdAt": "2025-10-17T14:26:20.628Z"
+    "createdAt": "2025-10-19T11:01:29.826Z",
+    "registrationTimestamp": 1760871689826,
+    "avatar": "https://via.placeholder.com/150x150/007bff/ffffff?text=HQ"
   }
 ]
