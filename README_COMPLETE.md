@@ -1,14 +1,24 @@
-# 🚀 GROUP 11 PROJECT - COMPLETE AUTHENTICATION SYSTEM
+# 🚀 Group 11 - Advanced Web Authentication System
 
-## 🎯 **Project Overview**
-Hệ thống authentication hoàn chỉnh với các tính năng advanced cho web application. Professional-grade backend APIs với comprehensive security features.
+**Hệ thống Authentication toàn diện với Redux, RBAC, Avatar Upload & Security Features**
 
-## 👥 **Team Members**
-- **Nguyễn Minh Khôi** - Backend Development (SV1 Role)
-  - Node.js + Express.js API development
+## 📋 **Tổng quan dự án**
+
+Dự án này là một hệ thống authentication và authorization hoàn chỉnh được phát triển qua **7 hoạt động**, tích hợp các tính năng bảo mật và quản lý người dùng hiện đại.
+
+### 🎯 **Mục tiêu chính**
+- **Frontend**: React + Redux Toolkit cho state management
+- **Backend**: Express.js với JWT authentication
+- **Database**: MongoDB + JSON file persistence  
+- **Security**: Rate limiting, CORS, validation
+- **Features**: Avatar upload, password reset, RBAC
+
+### 👥 **Team Members**
+- **Nguyễn Minh Khôi** - Project Lead & Full-Stack Development
+  - Backend API với Express.js & MongoDB
+  - Frontend Redux integration
   - Authentication & authorization systems
-  - Database design và integration
-  - Security implementation
+  - Security implementation & testing
 
 ## 📋 **Activities Completed**
 
