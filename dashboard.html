@@ -49,6 +49,10 @@
       justify-content: center;
       background: #f8f9fa;
     }
+    .avatar-container.admin {
+      border: 4px solid #ef4444;
+      background: #fff;
+    }
     .stats-card {
       text-align: center;
       padding: 1.5rem;
@@ -190,41 +194,91 @@
     <!-- Admin User Management -->
     <div id="adminUserManagement" class="row mb-4" style="display: none;">
       <div class="col-12">
-        <div class="card p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="text-primary">👥 Quản lý người dùng (Admin)</h4>
-            <button class="btn btn-success btn-sm" onclick="refreshUserList()">🔄 Làm mới</button>
+        <div class="card p-4" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-white mb-0">
+              <i class="bi bi-crown"></i> � Admin Panel - User Management
+            </h4>
+            <button class="btn btn-light btn-sm" onclick="refreshUserList()">
+              <i class="bi bi-arrow-clockwise"></i> 🔄 Làm mới
+            </button>
           </div>
           
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th>ID</th>
-                  <th>Avatar</th>
-                  <th>Tên</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody id="userTableBody">
-                <tr>
-                  <td colspan="6" class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <div>Đang tải danh sách người dùng...</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Admin Stats Row -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="adminTotalUsers">5</div>
+                <div class="text-white opacity-75">Total Users</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="adminActiveSessions">3</div>
+                <div class="text-white opacity-75">Active Sessions</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="adminSystemActivities">156</div>
+                <div class="text-white opacity-75">System Activities</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Admin Action Buttons -->
+          <div class="text-center mb-4">
+            <button class="btn btn-light btn-custom" onclick="refreshUserList()">
+              <i class="bi bi-people"></i> 👥 Quản lý User
+            </button>
+            <button class="btn btn-warning btn-custom">
+              <i class="bi bi-shield"></i> �️ Phân quyền
+            </button>
+            <button class="btn btn-info btn-custom" onclick="openAvatarUploadModal()">
+              <i class="bi bi-cloud-upload"></i> 📷 Upload Avatar
+            </button>
+            <button class="btn btn-secondary btn-custom">
+              <i class="bi bi-gear"></i> ⚙️ Cài đặt hệ thống
+            </button>
+          </div>
+          
+          <!-- User Management Table -->
+          <div class="bg-white rounded-3 p-4 mb-4">
+            <h5 class="text-dark mb-3">
+              <i class="bi bi-table"></i> Danh sách người dùng
+            </h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-dark">
+                  <tr>
+                    <th>ID</th>
+                    <th>Avatar</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <div>Đang tải danh sách người dùng...</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
           
           <!-- Add User Form -->
-          <div class="mt-4 p-3 bg-light rounded">
-            <h6>➕ Thêm người dùng mới:</h6>
-            <form id="addUserForm" class="row g-2">
+          <div class="bg-white rounded-3 p-4">
+            <h6 class="text-dark mb-3">
+              <i class="bi bi-person-plus"></i> ➕ Thêm người dùng mới:
+            </h6>
+            <form id="addUserForm" class="row g-3">
               <div class="col-md-3">
                 <input type="text" class="form-control" id="newUserName" placeholder="Tên đầy đủ" required>
               </div>
@@ -242,9 +296,131 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-lg"></i> Thêm
+                </button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Activity Logs Section -->
+    <div id="adminActivityLogs" class="row mb-4" style="display: none;">
+      <div class="col-12">
+        <div class="card p-4" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-white mb-0">
+              <i class="bi bi-journal-text"></i> 📝 Activity Logs & Rate Limiting
+            </h4>
+            <div class="d-flex gap-2">
+              <button class="btn btn-light btn-sm" onclick="refreshActivityLogs()">
+                <i class="bi bi-arrow-clockwise"></i> 🔄 Refresh Logs
+              </button>
+              <button class="btn btn-warning btn-sm" onclick="checkRateLimitStatus()">
+                <i class="bi bi-shield-exclamation"></i> 🛡️ Rate Limit Status
+              </button>
+            </div>
+          </div>
+
+          <!-- Rate Limiting Stats -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="totalLogsCount">0</div>
+                <div class="text-white opacity-75">Total Logs</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="loginAttemptsCount">0</div>
+                <div class="text-white opacity-75">Login Attempts</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="blockedEmailsCount">0</div>
+                <div class="text-white opacity-75">Rate Limited</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stats-card text-center">
+                <div class="stats-number text-white" id="activeUsersCount">0</div>
+                <div class="text-white opacity-75">Active Users</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Logs Table -->
+          <div class="bg-white rounded-3 p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="text-dark mb-0">
+                <i class="bi bi-list-ul"></i> Recent Activity Logs
+              </h5>
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" id="logActionFilter" onchange="filterLogs()">
+                  <option value="">All Actions</option>
+                  <option value="LOGIN_SUCCESS">Login Success</option>
+                  <option value="LOGIN_FAILED">Login Failed</option>
+                  <option value="LOGIN_RATE_LIMITED">Rate Limited</option>
+                  <option value="USER_REGISTERED">User Registered</option>
+                </select>
+                <input type="number" class="form-control form-control-sm" id="logUserIdFilter" 
+                       placeholder="User ID" onchange="filterLogs()" style="width: 100px;">
+              </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>IP</th>
+                  </tr>
+                </thead>
+                <tbody id="activityLogsTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <div>Đang tải activity logs...</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="text-muted">
+                Showing <span id="logsShowing">0</span> of <span id="logsTotal">0</span> logs
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" id="logsPrevBtn" onclick="previousLogsPage()" disabled>
+                  ← Previous
+                </button>
+                <span class="align-self-center mx-3">Page <span id="currentLogsPage">1</span></span>
+                <button class="btn btn-sm btn-outline-primary" id="logsNextBtn" onclick="nextLogsPage()">
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rate Limit Status -->
+          <div class="bg-white rounded-3 p-4" id="rateLimitSection">
+            <h5 class="text-dark mb-3">
+              <i class="bi bi-shield-check"></i> Rate Limiting Status
+            </h5>
+            <div id="rateLimitContent">
+              <p class="text-muted">Click "Rate Limit Status" button to check current status</p>
+            </div>
           </div>
         </div>
       </div>
@@ -377,6 +553,7 @@
         const userDashboard = document.querySelector('.card-success') || document.querySelector('.card'); // User Dashboard panel
         const adminPanel = document.getElementById('adminUserManagement');
         const dashboardTitle = document.getElementById('dashboardTitle');
+        const avatarContainer = document.getElementById('avatarContainer');
         
         // Update statistics and action buttons based on role
         if (user.role === 'admin') {
@@ -385,33 +562,37 @@
             userDashboard.classList.remove('card-success');
             userDashboard.classList.add('card-danger');
             
-            // Update statistics for admin
-            document.getElementById('userStat').textContent = '45';
-            document.getElementById('sessionStat').textContent = '12';
-            document.getElementById('activityStat').textContent = '234';
+            // Add admin styling to avatar
+            if (avatarContainer) avatarContainer.classList.add('admin');
             
-            // Update labels for admin context
-            document.querySelector('.card-body .row .col-4:nth-child(1) p.text-muted').textContent = 'Total Users';
-            document.querySelector('.card-body .row .col-4:nth-child(2) p.text-muted').textContent = 'Active Sessions';
-            document.querySelector('.card-body .row .col-4:nth-child(3) p.text-muted').textContent = 'System Activities';
-            
-            // Update action buttons for admin
-            document.getElementById('actionButtons').innerHTML = `
-              <button class="btn btn-danger btn-custom">
-                <i class="bi bi-people"></i> 👥 Quản lý User
-              </button>
-              <button class="btn btn-warning btn-custom">
-                <i class="bi bi-shield"></i> 🛡️ Phân quyền
-              </button>
-              <button class="btn btn-info btn-custom">
-                <i class="bi bi-graph-up"></i> 📈 Thống kê
-              </button>
-              <button class="btn btn-secondary btn-custom">
-                <i class="bi bi-gear"></i> ⚙️ Cài đặt hệ thống
-              </button>
-            `;
+            // Update statistics for admin main dashboard
+            document.getElementById('stat1').textContent = '📝 12';
+            document.getElementById('stat1Label').textContent = 'Hoạt động';
+            document.getElementById('stat2').textContent = '🎯 8';
+            document.getElementById('stat2Label').textContent = 'Mục tiêu hoàn thành';
+            document.getElementById('stat3').textContent = '⭐ 4.5';
+            document.getElementById('stat3Label').textContent = 'Điểm đánh giá';
             
             adminPanel.style.display = 'block';
+            
+            // Show activity logs section for admin
+            const activityLogsSection = document.getElementById('adminActivityLogs');
+            if (activityLogsSection) {
+                activityLogsSection.style.display = 'block';
+                // Load activity logs and rate limit status
+                setTimeout(() => {
+                    refreshActivityLogs();
+                    checkRateLimitStatus();
+                }, 500);
+            }
+            
+            // Update admin panel stats
+            setTimeout(() => {
+                document.getElementById('adminTotalUsers').textContent = '5';
+                document.getElementById('adminActiveSessions').textContent = '3';
+                document.getElementById('adminSystemActivities').textContent = '156';
+            }, 100);
+            
             loadUserList();
             
         } else if (user.role === 'moderator') {
@@ -1030,6 +1211,262 @@ Avatar: ${user.avatar ? 'Có' : 'Không'}
         console.error('Upload error', err);
         document.getElementById('uploadResultModal').innerHTML = '<div class="alert alert-danger">Lỗi: ' + (err && err.message ? err.message : err) + '</div>';
       }
+    }
+  </script>
+
+  <!-- Activity Logs JavaScript -->
+  <script>
+    // Activity logs pagination
+    let currentLogsPage = 1;
+    let logsPerPage = 10;
+    let totalLogs = 0;
+
+    // Load activity logs
+    async function refreshActivityLogs() {
+      try {
+        const actionFilter = document.getElementById('logActionFilter')?.value || '';
+        const userIdFilter = document.getElementById('logUserIdFilter')?.value || '';
+        
+        const params = new URLSearchParams({
+          limit: logsPerPage,
+          offset: (currentLogsPage - 1) * logsPerPage
+        });
+        
+        if (actionFilter) params.append('action', actionFilter);
+        if (userIdFilter) params.append('userId', userIdFilter);
+        
+        console.log('🔄 Loading activity logs...');
+        const response = await fetch(`/api/admin/activity-logs?${params}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          totalLogs = data.total;
+          displayActivityLogs(data.logs);
+          updateLogsPagination();
+          updateLogsStats(data.logs.length, data.total);
+        } else {
+          console.error('Failed to load activity logs:', data.message);
+          showNoLogs('Failed to load logs');
+        }
+      } catch (error) {
+        console.error('Error loading activity logs:', error);
+        showNoLogs('Error loading logs');
+      }
+    }
+
+    // Display activity logs in table
+    function displayActivityLogs(logs) {
+      const tbody = document.getElementById('activityLogsTableBody');
+      if (!tbody) return;
+      
+      if (logs.length === 0) {
+        showNoLogs('No activity logs found');
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      
+      logs.forEach((log, index) => {
+        const row = document.createElement('tr');
+        
+        // Format timestamp
+        const timestamp = new Date(log.timestamp).toLocaleString('vi-VN');
+        
+        // Format action with badge
+        const actionBadge = getActionBadge(log.action);
+        
+        // Format user info
+        const userInfo = log.userId ? 
+          `${log.userEmail} (ID: ${log.userId})` : 
+          (log.userEmail || 'Unknown');
+        
+        // Format details
+        const details = formatLogDetails(log.details);
+        
+        row.innerHTML = `
+          <td><strong>#${log.id}</strong></td>
+          <td><small>${timestamp}</small></td>
+          <td><small>${userInfo}</small></td>
+          <td>${actionBadge}</td>
+          <td><small>${details}</small></td>
+          <td><small>${log.ip || '127.0.0.1'}</small></td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+
+    // Get action badge with appropriate color
+    function getActionBadge(action) {
+      const badges = {
+        'LOGIN_SUCCESS': '<span class="badge bg-success">Login Success</span>',
+        'LOGIN_FAILED': '<span class="badge bg-danger">Login Failed</span>',
+        'LOGIN_RATE_LIMITED': '<span class="badge bg-warning">Rate Limited</span>',
+        'USER_REGISTERED': '<span class="badge bg-info">User Registered</span>',
+        'USER_DELETED': '<span class="badge bg-danger">User Deleted</span>',
+        'USER_UPDATED': '<span class="badge bg-primary">User Updated</span>'
+      };
+      
+      return badges[action] || `<span class="badge bg-secondary">${action}</span>`;
+    }
+
+    // Format log details
+    function formatLogDetails(details) {
+      if (!details || typeof details !== 'object') return '-';
+      
+      const formatted = [];
+      for (const [key, value] of Object.entries(details)) {
+        formatted.push(`${key}: ${value}`);
+      }
+      
+      return formatted.join(', ') || '-';
+    }
+
+    // Show no logs message
+    function showNoLogs(message = 'No logs available') {
+      const tbody = document.getElementById('activityLogsTableBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            <i class="bi bi-inbox"></i> ${message}
+          </td>
+        </tr>
+      `;
+    }
+
+    // Update logs pagination
+    function updateLogsPagination() {
+      const totalPages = Math.ceil(totalLogs / logsPerPage);
+      
+      document.getElementById('currentLogsPage').textContent = currentLogsPage;
+      document.getElementById('logsPrevBtn').disabled = currentLogsPage <= 1;
+      document.getElementById('logsNextBtn').disabled = currentLogsPage >= totalPages;
+      
+      const showing = Math.min((currentLogsPage - 1) * logsPerPage + logsPerPage, totalLogs);
+      document.getElementById('logsShowing').textContent = showing;
+      document.getElementById('logsTotal').textContent = totalLogs;
+    }
+
+    // Update logs statistics
+    function updateLogsStats(currentCount, total) {
+      document.getElementById('totalLogsCount').textContent = total;
+      
+      // Count different types of activities
+      // This is simplified - in real app would come from API
+      const loginAttempts = Math.floor(total * 0.7); // Mock data
+      const rateLimited = Math.floor(total * 0.1);
+      const activeUsers = Math.floor(total * 0.3);
+      
+      document.getElementById('loginAttemptsCount').textContent = loginAttempts;
+      document.getElementById('blockedEmailsCount').textContent = rateLimited;
+      document.getElementById('activeUsersCount').textContent = activeUsers;
+    }
+
+    // Pagination functions
+    function previousLogsPage() {
+      if (currentLogsPage > 1) {
+        currentLogsPage--;
+        refreshActivityLogs();
+      }
+    }
+
+    function nextLogsPage() {
+      const totalPages = Math.ceil(totalLogs / logsPerPage);
+      if (currentLogsPage < totalPages) {
+        currentLogsPage++;
+        refreshActivityLogs();
+      }
+    }
+
+    // Filter logs
+    function filterLogs() {
+      currentLogsPage = 1; // Reset to first page
+      refreshActivityLogs();
+    }
+
+    // Check rate limit status
+    async function checkRateLimitStatus() {
+      try {
+        console.log('🔍 Checking rate limit status...');
+        const response = await fetch('/api/admin/rate-limit-status');
+        const data = await response.json();
+        
+        if (data.success) {
+          displayRateLimitStatus(data);
+        } else {
+          console.error('Failed to get rate limit status:', data.message);
+        }
+      } catch (error) {
+        console.error('Error checking rate limit status:', error);
+      }
+    }
+
+    // Display rate limit status
+    function displayRateLimitStatus(data) {
+      const content = document.getElementById('rateLimitContent');
+      if (!content) return;
+      
+      if (data.rateLimitStatus.length === 0) {
+        content.innerHTML = `
+          <div class="alert alert-success">
+            <i class="bi bi-shield-check"></i> No rate limiting active. All users can login normally.
+          </div>
+          <p class="text-muted mb-0">
+            <strong>Policy:</strong> Max ${data.maxAttempts} attempts per ${data.windowMinutes} minutes
+          </p>
+        `;
+        return;
+      }
+      
+      let html = `
+        <div class="alert alert-warning">
+          <i class="bi bi-shield-exclamation"></i> 
+          ${data.rateLimitStatus.length} email(s) are currently rate limited
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Attempts</th>
+                <th>Status</th>
+                <th>Reset Time</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      data.rateLimitStatus.forEach(status => {
+        const statusBadge = status.isLimited ? 
+          '<span class="badge bg-danger">Blocked</span>' :
+          '<span class="badge bg-warning">Warning</span>';
+        
+        const resetTime = status.nextResetTime ? 
+          new Date(status.nextResetTime).toLocaleString('vi-VN') : 
+          '-';
+        
+        html += `
+          <tr>
+            <td>${status.email}</td>
+            <td>${status.attemptCount}/${status.maxAttempts}</td>
+            <td>${statusBadge}</td>
+            <td><small>${resetTime}</small></td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+        <p class="text-muted mb-0 mt-2">
+          <strong>Policy:</strong> Max ${data.maxAttempts} attempts per ${data.windowMinutes} minutes
+        </p>
+      `;
+      
+      content.innerHTML = html;
     }
   </script>
 

@@ -5,7 +5,7 @@ const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require("path");
-const authRoutes = require("./backend/routes/auth"); // ✅ Đường dẫn chính xác
+const authRoutes = require("./backend/routes/authRoutes"); // ✅ Đường dẫn chính xác
 
 const app = express();
 
