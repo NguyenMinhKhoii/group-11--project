@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Test - Group 11</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5>👑 Admin Login Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Click nút bên dưới để đăng nhập với tài khoản Admin và xem User Management:</p>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-danger" onclick="loginAsAdmin()">
+                                👑 Đăng nhập làm Admin
+                            </button>
+                            <button class="btn btn-warning" onclick="loginAsModerator()">
+                                🛡️ Đăng nhập làm Moderator  
+                            </button>
+                            <button class="btn btn-success" onclick="loginAsUser()">
+                                👤 Đăng nhập làm User
+                            </button>
+                        </div>
+                        
+                        <hr>
+                        <div class="text-center">
+                            <a href="dashboard.html" class="btn btn-primary">
+                                🏠 Đi tới Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loginAsAdmin() {
+            const adminUser = {
+                id: 1,
+                fullname: "Admin User",
+                email: "admin@group11.com",
+                role: "admin",
+                avatar: "https://via.placeholder.com/150/ff6b6b/white?text=ADMIN"
+            };
+            
+            localStorage.setItem('user', JSON.stringify(adminUser));
+            localStorage.setItem('token', 'admin_token_' + Date.now());
+            
+            alert('✅ Đã đăng nhập làm Admin!\nBạn sẽ thấy User Management trong Dashboard.');
+            window.location.href = 'dashboard.html';
+        }
+
+        function loginAsModerator() {
+            const modUser = {
+                id: 2,
+                fullname: "Moderator User", 
+                email: "mod@group11.com",
+                role: "moderator",
+                avatar: "https://via.placeholder.com/150/4ecdc4/white?text=MOD"
+            };
+            
+            localStorage.setItem('user', JSON.stringify(modUser));
+            localStorage.setItem('token', 'mod_token_' + Date.now());
+            
+            alert('✅ Đã đăng nhập làm Moderator!');
+            window.location.href = 'dashboard.html';
+        }
+
+        function loginAsUser() {
+            const regularUser = {
+                id: 3,
+                fullname: "Regular User",
+                email: "user@group11.com", 
+                role: "user",
+                avatar: "https://via.placeholder.com/150/95e1d3/white?text=USER"
+            };
+            
+            localStorage.setItem('user', JSON.stringify(regularUser));
+            localStorage.setItem('token', 'user_token_' + Date.now());
+            
+            alert('✅ Đã đăng nhập làm User!');
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,34 +1,58 @@
-/* Căn giữa toàn bộ trang */
+/* Desktop-optimized global styles */
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+/* Form pages layout (login, signup) */
+body.form-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  font-family: "Poppins", sans-serif;
+  height: 100vh;
 }
 
-/* Hộp form chính */
+/* Hộp form chính - Responsive */
 .container {
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   padding: 20px;
 }
 
-/* Form đăng ký / đăng nhập */
+/* Dashboard and profile pages */
+body.dashboard-page {
+  background: #f8f9fa;
+  padding-top: 80px;
+}
+
+body.dashboard-page .container {
+  max-width: 1400px;
+  padding: 0 2rem;
+}
+
+/* Form đăng ký / đăng nhập - Desktop optimized */
 .form-box {
   background: #fff;
-  padding: 30px 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 40px 50px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.form-box:hover {
+  transform: translateY(-5px);
 }
 
 .form-box h2 {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   color: #333;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 /* Ô nhập liệu */
@@ -44,7 +68,8 @@ body {
   font-weight: 600;
 }
 
-.input-group input {
+.input-group input,
+.input-group select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ccc;
@@ -52,11 +77,78 @@ body {
   font-size: 14px;
   outline: none;
   transition: 0.3s;
+  background: #fff;
 }
 
-.input-group input:focus {
+.input-group input:focus,
+.input-group select:focus {
   border-color: #66a6ff;
   box-shadow: 0 0 4px #66a6ff;
+}
+
+/* Style cho dropdown select */
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.text-muted {
+  color: #888;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Message styles */
+.message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Activity Header */
+.activity-header {
+  margin-bottom: 25px;
+  padding: 15px;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.activity-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff7043, #ff5722);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.activity-desc {
+  color: #1565c0;
+  font-size: 13px;
+  margin: 8px 0 0 0;
+  font-weight: 500;
 }
 
 /* Nút bấm */

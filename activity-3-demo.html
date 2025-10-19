@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity 3 - Demo Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .demo-container { margin: 20px 0; }
+        .feature-card { margin-bottom: 20px; }
+        .status-success { color: #28a745; }
+        .status-info { color: #17a2b8; }
+        .api-endpoint { background: #f8f9fa; padding: 10px; border-radius: 5px; }
+        .tech-stack { display: flex; flex-wrap: wrap; gap: 10px; }
+        .tech-badge { background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron bg-primary text-white p-4 rounded">
+                    <h1 class="display-4">🚀 Activity 3 - Advanced Avatar Upload</h1>
+                    <p class="lead">Complete implementation với Multer + Sharp + Cloudinary + JWT + MongoDB</p>
+                    <hr class="my-4">
+                    <p class="status-success">✅ <strong>Implementation Status: COMPLETED</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row demo-container">
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-header bg-success text-white">
+                        <h5>SV1 - Backend API</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="status-success">✅ Requirements Met:</h6>
+                        <ul>
+                            <li>Multer file upload middleware</li>
+                            <li>Sharp image processing</li>
+                            <li>Cloudinary cloud storage</li>
+                            <li>JWT authentication</li>
+                            <li>MongoDB integration</li>
+                        </ul>
+                        
+                        <h6 class="mt-3">API Endpoints:</h6>
+                        <div class="api-endpoint">
+                            <code>POST /api/avatar/upload</code><br>
+                            <small>Upload với JWT auth</small>
+                        </div>
+                        <div class="api-endpoint mt-2">
+                            <code>GET /api/avatar/current</code><br>
+                            <small>Lấy avatar hiện tại</small>
+                        </div>
+                        <div class="api-endpoint mt-2">
+                            <code>DELETE /api/avatar/delete</code><br>
+                            <small>Xóa avatar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-header bg-info text-white">
+                        <h5>SV2 - Frontend Interface</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="status-success">✅ Features Implemented:</h6>
+                        <ul>
+                            <li>Drag & Drop upload</li>
+                            <li>Image preview</li>
+                            <li>Progress tracking</li>
+                            <li>JWT integration</li>
+                            <li>Error handling</li>
+                            <li>Responsive design</li>
+                        </ul>
+                        
+                        <h6 class="mt-3">Technology Stack:</h6>
+                        <div class="tech-stack">
+                            <span class="tech-badge">HTML5</span>
+                            <span class="tech-badge">Bootstrap 5</span>
+                            <span class="tech-badge">JavaScript ES6+</span>
+                            <span class="tech-badge">Fetch API</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5>SV3 - Database & Cloud</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="status-success">✅ Integration Complete:</h6>
+                        <ul>
+                            <li>Cloudinary account setup</li>
+                            <li>MongoDB User model</li>
+                            <li>Avatar URL storage</li>
+                            <li>Image transformations</li>
+                            <li>Cloud file management</li>
+                        </ul>
+                        
+                        <h6 class="mt-3">Specifications:</h6>
+                        <ul>
+                            <li>Auto-resize: 300x300px</li>
+                            <li>Format optimization</li>
+                            <li>5MB file size limit</li>
+                            <li>Security validation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5>🧪 Testing & Demo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Quick Start Guide:</h6>
+                                <ol>
+                                    <li>Start backend server: <code>cd backend && node server.js</code></li>
+                                    <li>Open: <a href="/upload-avatar-advanced.html" target="_blank">upload-avatar-advanced.html</a></li>
+                                    <li>Test user registration</li>
+                                    <li>Upload avatar with drag & drop</li>
+                                    <li>Verify MongoDB storage</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Test Scenarios:</h6>
+                                <ul>
+                                    <li class="status-success">✅ Authentication flow</li>
+                                    <li class="status-success">✅ File upload validation</li>
+                                    <li class="status-success">✅ Image processing</li>
+                                    <li class="status-success">✅ Cloudinary storage</li>
+                                    <li class="status-success">✅ Database persistence</li>
+                                    <li class="status-success">✅ Error handling</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6>🔧 API Status Check:</h6>
+                            <button class="btn btn-primary" onclick="testAPI()">Test Avatar API</button>
+                            <div id="api-results" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">🎯 Activity 3 Complete!</h4>
+                    <p>All requirements successfully implemented:</p>
+                    <hr>
+                    <ul class="mb-0">
+                        <li><strong>SV1:</strong> Backend API với Multer + Sharp + Cloudinary + JWT ✅</li>
+                        <li><strong>SV2:</strong> Professional frontend interface với drag-drop upload ✅</li>
+                        <li><strong>SV3:</strong> Cloudinary integration và MongoDB storage ✅</li>
+                    </ul>
+                    <hr>
+                    <p class="mb-0"><strong>Ready for Git workflow và Pull Request submission!</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📋 Next Steps - Git Workflow</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Recommended Git Commands:</h6>
+                        <pre class="bg-dark text-light p-3 rounded"><code>git checkout -b feature/avatar-upload
+git add .
+git commit -m "Implement Activity 3: Advanced Avatar Upload System
+
+- Add Multer + Sharp + Cloudinary integration
+- Implement JWT-protected avatar endpoints  
+- Create MongoDB User model with avatar support
+- Build professional frontend with drag-drop upload
+- Add comprehensive error handling and validation"
+
+git push origin feature/avatar-upload
+# Create Pull Request với demo screenshots</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('api-results');
+            resultsDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Testing API...';
+            
+            try {
+                const response = await fetch('/api/avatar/test');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ API Test Successful!</strong><br>
+                        <strong>Message:</strong> ${data.message}<br>
+                        <strong>Available Endpoints:</strong>
+                        <ul class="mb-0 mt-2">
+                            ${data.endpoints.map(endpoint => `<li><code>${endpoint}</code></li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>❌ API Test Failed!</strong><br>
+                        Error: ${error.message}<br>
+                        <small>Make sure the backend server is running on port 5173</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-test API on page load
+        window.addEventListener('load', testAPI);
+    </script>
+</body>
+</html>

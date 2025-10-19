@@ -73,9 +73,80 @@ const deleteFromCloudinary = async (publicId) => {
   }
 };
 
+/**
+ * Multer + Cloudinary Integration for Direct Upload
+ */
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+
+// Cloudinary Storage Configuration for Avatar Upload
+const avatarStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'group11_avatars', // Folder in Cloudinary
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    public_id: (req, file) => {
+      // Generate unique filename: user_id_timestamp
+      const userId = req.user ? req.user._id : 'anonymous';
+      const timestamp = Date.now();
+      return `avatar_${userId}_${timestamp}`;
+    },
+    transformation: [
+      {
+        width: 300,
+        height: 300,
+        crop: 'fill',
+        gravity: 'face', // Focus on face if detected
+        quality: 'auto:good',
+        fetch_format: 'auto'
+      }
+    ]
+  }
+});
+
+// Multer Configuration for Avatar Upload
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+    files: 1 // Only one file
+  },
+  fileFilter: (req, file, cb) => {
+    console.log('📎 File received:', {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    
+    if (!allowedTypes.includes(file.mimetype)) {
+      const error = new Error(`Unsupported file type: ${file.mimetype}. Allowed: ${allowedTypes.join(', ')}`);
+      error.code = 'INVALID_FILE_TYPE';
+      return cb(error, false);
+    }
+
+    // Check file extension
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const fileExtension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
+    
+    if (!allowedExtensions.includes(fileExtension)) {
+      const error = new Error(`Unsupported file extension: ${fileExtension}. Allowed: ${allowedExtensions.join(', ')}`);
+      error.code = 'INVALID_FILE_EXTENSION';
+      return cb(error, false);
+    }
+
+    cb(null, true);
+  }
+});
+
 module.exports = {
   cloudinary,
   testCloudinaryConnection,
   uploadToCloudinary,
-  deleteFromCloudinary
+  deleteFromCloudinary,
+  avatarUpload,
+  avatarStorage
 };

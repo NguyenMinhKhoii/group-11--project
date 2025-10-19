@@ -1,93 +1,59 @@
 const express = require("express");
-feature/rbac
-const bodyParser = require("body-parser");
-const { authenticateToken } = require("./middleware/authMiddleware");
-const authRoutes = require("./routes/authRoutes");
-=======
- feature/refresh-token
-const mongoose = require("mongoose");
+const cors = require("cors");
 const dotenv = require("dotenv");
-const User = require("./models/User"); // Model bạn đã có
-const authRoutes = require("./routes/auth"); // 🔹 Thêm dòng này
+const path = require("path");
 
+// Load environment variables
 dotenv.config();
 
-const cors = require("cors");
-const jwt = require("jsonwebtoken");
+// Import database connection
+const connectDB = require("./config/db");
 
-backend
+// Import middleware
+const { authenticateToken } = require("./middleware/authMiddleware");
+const { authenticateJWT } = require("./middleware/jwtAuth");
+const { checkRole, checkRoleLevel, checkAnyRole, ROLES } = require("./middleware/roleMiddleware");
+const { generalRateLimit } = require("./middleware/rateLimitMiddleware");
+
+// Import routes
+const authRoutes = require("./routes/authRoutes");
+const authMongoDB = require("./routes/authMongoDB"); // New MongoDB auth routes
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const avatarRoutes = require("./routes/avatarRoutes");
 const activityRoutes = require("./routes/activityRoutes");
+
+// Import utilities
 const { testCloudinaryConnection } = require("./utils/cloudinaryConfig");
 const { testEmailConnection } = require("./utils/emailConfig");
-const { generalRateLimit } = require("./middleware/rateLimitMiddleware");
 
-feature/rbac
+// Initialize app
 const app = express();
 
-// ✅ Apply general rate limiting (optional - để protect toàn bộ API)
-// app.use(generalRateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
-
-app.use(bodyParser.json());
-=======
-// =========================
-// 2️⃣ Khởi tạo app
-// =========================
- backend
-const app = express();
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-feature/refresh-token
-// Kết nối MongoDB Atlas
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Atlas connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+// Serve static files from parent directory (for HTML files)
+app.use(express.static(path.join(__dirname, '..')));
 
-// 🔹 Thêm dòng này sau khi cấu hình middleware (express.json)
-app.use("/api/auth", authRoutes); // Đăng ký route cho Authentication
+// Apply general rate limiting
+app.use(generalRateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
-// API GET
-app.get("/users", async (req, res) => {
-  const users = await User.find();
-  res.json(users);
-});
+// Connect to MongoDB with better error handling
+connectDB();
 
-// API POST
-app.post("/users", async (req, res) => {
-  const { name, email, password } = req.body;
-  const newUser = new User({ name, email, password });
-  await newUser.save();
-  res.status(201).json(newUser);
-});
-
-// Khởi động server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-// =========================
-// 3️⃣ Dữ liệu tạm
-// =========================
-global.users = [
-  { id: "1", name: "Admin", email: "admin@gmail.com", password: "123456", role: "Admin" },
-  { id: "2", name: "User A", email: "a@gmail.com", password: "123456", role: "User" },
-  { id: "3", name: "User B", email: "b@gmail.com", password: "123456", role: "User" }
-];
-backend
-
-// ✅ Đăng ký router
+// Register routes
+app.use("/api/auth", authRoutes); // Original mock routes
+app.use("/api/auth-mongo", authMongoDB); // New MongoDB routes for Activity 3
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
-app.use("/users", avatarRoutes);  // Avatar routes
+app.use("/api/avatar", avatarRoutes); // Avatar routes with JWT
 app.use("/admin", adminRoutes);
-app.use("/activities", activityRoutes);  // Activity logs routes
+app.use("/activities", activityRoutes);
 
-// Import role middleware
-const { checkRole, checkRoleLevel, checkAnyRole, ROLES } = require("./middleware/roleMiddleware");
-
-// ✅ Route demo phân quyền
+// RBAC Demo Routes
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ 
     message: `Xin chào ${req.user.name}, bạn đã truy cập thành công!`,
@@ -140,27 +106,35 @@ app.get("/multi-role", authenticateToken, checkAnyRole(ROLES.MODERATOR, ROLES.AD
   });
 });
 
-feature/rbac
-const PORT = 3000;
-feature/avatar-upload
-app.listen(PORT, async () => {
-  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
-  
-  // Test Cloudinary connection
-  console.log('🔄 Testing Cloudinary connection...');
-  await testCloudinaryConnection();
-  
-  // Test Email connection
-  console.log('🔄 Testing Email connection...');
-  await testEmailConnection();
+// Health check route
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
-app.listen(PORT, () => console.log(`✅ Server chạy tại http://localhost:${PORT}`));
-
-// =========================
-// 7️⃣ Chạy server
-// =========================
-app.listen(3000, () => console.log("🚀 Server chạy tại http://localhost:3000"));
- backend
-backend
-backend
+// Start server
+const PORT = process.env.PORT || 5173;
+app.listen(PORT, async () => {
+  console.log(`🚀 Group 11 RBAC Server - Activity 3`);
+  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
+  console.log('📋 Available endpoints:');
+  console.log('   • MongoDB Auth: /api/auth-mongo/*');
+  console.log('   • Avatar Upload: /api/avatar/upload (JWT required)');
+  console.log('   • Original Auth: /api/auth/*');
+  
+  // Test connections
+  console.log('🔄 Testing Cloudinary connection...');
+  const cloudinaryOk = await testCloudinaryConnection();
+  
+  console.log('🔄 Testing Email connection...');
+  await testEmailConnection();
+  
+  if (cloudinaryOk) {
+    console.log('🎯 Ready for Activity 3: Advanced Avatar Upload!');
+  } else {
+    console.log('⚠️ Cloudinary connection failed - check .env configuration');
+  }
+});

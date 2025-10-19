@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Avatar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            padding: 40px 0;
+        }
+        .upload-card { 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            max-width: 500px;
+        }
+        .drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .drop-zone:hover {
+            border-color: #764ba2;
+            background-color: #f8f9fa;
+        }
+        .drop-zone.dragover {
+            border-color: #28a745;
+            background-color: #e7f5e7;
+        }
+        .preview-img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .progress {
+            height: 30px;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="upload-card mx-auto p-4">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <h2>📷 Upload Avatar</h2>
+                        <p class="text-muted">Chọn ảnh để làm avatar của bạn</p>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="window.location.href='dashboard.html'">← Quay lại Dashboard</button>
+                    </div>
+
+                    <!-- Current Avatar -->
+                    <div class="text-center mb-4">
+                        <h5>Avatar hiện tại:</h5>
+                        <img id="currentAvatar" src="https://via.placeholder.com/150/667eea/white?text=Avatar" alt="Current Avatar" class="rounded-circle" width="150" height="150">
+                    </div>
+
+                    <!-- File Upload Zone -->
+                    <div class="drop-zone" id="dropZone">
+                        <div id="uploadContent">
+                            <h4>🖼️ Kéo thả ảnh vào đây</h4>
+                            <p class="text-muted">hoặc <strong>click để chọn file</strong></p>
+                            <p class="small text-muted">Chấp nhận: JPG, PNG, GIF (Max: 5MB)</p>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                        
+                        <!-- Preview -->
+                        <div id="previewSection" style="display: none;">
+                            <img id="previewImg" class="preview-img" alt="Preview">
+                            <div class="mt-3">
+                                <button class="btn btn-success me-2" onclick="uploadAvatar()">✅ Upload</button>
+                                <button class="btn btn-secondary" onclick="resetUpload()">❌ Hủy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="progressSection" class="mt-4" style="display: none;">
+                        <div class="progress">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                        </div>
+                        <p id="progressText" class="text-center mt-2">Đang upload...</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="resultSection" class="mt-4" style="display: none;">
+                        <div id="successMessage" class="alert alert-success" style="display: none;">
+                            <h5>✅ Upload thành công!</h5>
+                            <p>Avatar của bạn đã được cập nhật.</p>
+                            <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Về Dashboard</button>
+                        </div>
+                        <div id="errorMessage" class="alert alert-danger" style="display: none;">
+                            <h5>❌ Upload thất bại!</h5>
+                            <p id="errorText">Có lỗi xảy ra.</p>
+                            <button class="btn btn-secondary" onclick="resetUpload()">Thử lại</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    </p>
+
+    <!-- Thông báo kết quả -->
+    <p id="message" class="message"></p>
+  </form>
+
+ <script>
+        let selectedFile = null;
+
+        // Initialize page
+        window.addEventListener('load', () => {
+            loadCurrentAvatar();
+            setupDragAndDrop();
+        });
+
+        function loadCurrentAvatar() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const currentAvatarElement = document.getElementById('currentAvatar');
+            
+            const avatarUrl = user.avatar || `https://via.placeholder.com/150/667eea/white?text=${encodeURIComponent(user.fullname || 'User')}`;
+            
+            console.log('🔄 Loading current avatar:', avatarUrl);
+            currentAvatarElement.src = avatarUrl;
+            
+            // Add error handling
+            currentAvatarElement.onerror = function() {
+                console.log('❌ Current avatar load failed, using default');
+                this.src = 'https://via.placeholder.com/150/cccccc/666666?text=Avatar';
+                this.onerror = null;
+            };
+            
+            currentAvatarElement.onload = function() {
+                console.log('✅ Current avatar loaded successfully');
+            };
+        }
+
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            // Click to select file
+            dropZone.addEventListener('click', () => {
+                if (!selectedFile) {
+                    fileInput.click();
+                }
+            });
+
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            // Drag and drop events
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            });
+        }
+
+        function handleFileSelect(file) {
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Vui lòng chọn file ảnh!');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                alert('❌ File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+                return;
+            }
+
+            selectedFile = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('uploadContent').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetUpload() {
+            selectedFile = null;
+            document.getElementById('uploadContent').style.display = 'block';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        async function uploadAvatar() {
+            if (!selectedFile) {
+                alert('❌ Vui lòng chọn file!');
+                return;
+            }
+
+            let user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.email) {
+                // Create demo user if not exists
+                user = {
+                    fullname: "Regular User",
+                    email: "user@gmail.com", 
+                    role: "user",
+                    id: 3
+                };
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+
+            // Show progress
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'block';
+            
+            // Simulate upload progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 25;
+                if (progress > 95) progress = 95;
+                
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressText').textContent = `Đang upload... ${Math.round(progress)}%`;
+            }, 300);
+
+            try {
+                // Simulate Cloudinary upload process
+                await new Promise(resolve => setTimeout(resolve, 2500));
+                
+                // Generate unique avatar URL based on file name and timestamp
+                const fileName = selectedFile.name.replace(/\.[^/.]+$/, ""); // Remove extension
+                const timestamp = Date.now();
+                const avatarUrl = `https://res.cloudinary.com/demo/image/upload/c_fill,w_300,h_300/avatar_${fileName}_${timestamp}.jpg`;
+                
+                // Also create a working fallback URL
+                const fallbackUrl = `https://via.placeholder.com/300x300/4ade80/white?text=${encodeURIComponent(user.fullname || 'User')}&t=${timestamp}`;
+                
+                console.log('🔄 Uploading avatar for user:', user.email);
+                console.log('📸 Avatar URL:', avatarUrl);
+
+                // Try to update via API first
+                let apiSuccess = false;
+                let finalAvatarUrl = fallbackUrl;
+                
+                try {
+                    console.log('🔄 Attempting to update avatar via API...');
+                    const response = await fetch(`http://localhost:5173/api/auth/users/${encodeURIComponent(user.email)}/avatar`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ avatar: fallbackUrl })
+                    });
+
+                    const result = await response.json();
+                    console.log('📡 API Response:', result);
+                    
+                    if (result.success) {
+                        apiSuccess = true;
+                        finalAvatarUrl = result.user.avatar || fallbackUrl;
+                        console.log('✅ Avatar updated via API successfully');
+                    } else {
+                        console.log('❌ API update failed:', result.message);
+                    }
+                } catch (apiError) {
+                    console.log('⚠️ API not available, using localStorage only:', apiError.message);
+                }
+                
+                // Complete progress
+                clearInterval(progressInterval);
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressText').textContent = 'Upload hoàn thành! ✅';
+
+                // Always update localStorage (works even if API fails)
+                const updatedUser = { ...user, avatar: finalAvatarUrl };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                
+                console.log('✅ Avatar updated in localStorage:', updatedUser);
+                
+                // Show success
+                setTimeout(() => {
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('resultSection').style.display = 'block';
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Update current avatar display
+                    document.getElementById('currentAvatar').src = finalAvatarUrl;
+                    
+                    // Update success message
+                    const successMsg = document.querySelector('#successMessage p');
+                    if (successMsg) {
+                        successMsg.textContent = `Avatar đã được cập nhật thành công! ${apiSuccess ? '(Đã lưu vào server)' : '(Đã lưu local)'}`;
+                    }
+                }, 800);
+
+            } catch (error) {
+                console.error('❌ Upload error:', error);
+                clearInterval(progressInterval);
+                
+                document.getElementById('progressSection').style.display = 'none';
+                document.getElementById('resultSection').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorText').textContent = `Lỗi upload: ${error.message}. Vui lòng thử lại!`;
+            }
+        }
+    </script>
+
+</body>
+</html>

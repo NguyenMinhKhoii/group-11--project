@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="form-page">
+  <div class="container">
+    <form class="form-box" id="loginForm">
+    <h2>Đăng nhập</h2>
+
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="Nhập email" required />
+    </div>
+
+    <div class="input-group">
+      <label>Mật khẩu</label>
+      <input type="password" id="password" placeholder="Nhập mật khẩu" required />
+    </div>
+
+    <button type="submit" class="btn">Đăng nhập</button>
+    <p class="switch-text">
+      Chưa có tài khoản? <a href="signup.html">Đăng ký</a>
+    </p>
+  </form>
+
+ <script>
+  const form = document.getElementById("loginForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      const res = await fetch("http://localhost:5173/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        alert("✅ Đăng nhập thành công!");
+
+        // Lưu thông tin user vào localStorage (server authoritative)
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Store token under both keys for compatibility with different pages
+        const tokenValue = data.token || data.accessToken || '';
+        if (tokenValue) {
+          localStorage.setItem('token', tokenValue);
+          localStorage.setItem('authToken', tokenValue);
+        }
+
+        // Chuyển đến dashboard
+        window.location.href = "dashboard.html";
+      } else {
+        alert("❌ Lỗi: " + (data.message || "Đăng nhập thất bại!"));
+      }
+
+    } catch (err) {
+      alert("⚠️ Lỗi kết nối tới server!");
+    }
+  });
+</script>
+
+  </div>
+</body>
+</html>

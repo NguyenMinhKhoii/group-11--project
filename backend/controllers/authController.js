@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
-feature/rbac
+const bcrypt = require("bcryptjs");
 const fs = require("fs");
-
- feature/refresh-token
 const User = require("../models/User");
 
 // Đăng ký
@@ -55,8 +53,9 @@ exports.login = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+};
+
 const users = require("../models/userModel");
-backend
 
 let resetTokens = {}; // { email: token }
 
@@ -96,14 +95,13 @@ exports.uploadAvatar = (req, res) => {
   const avatarUrl = `https://fake-cloudinary.com/${req.file.filename}.jpg`;
   user.avatar = avatarUrl;
 
-feature/rbac
   res.json({ message: "Cập nhật avatar thành công!", avatar: avatarUrl });
+};
+
 // ----------------------
 // 🔴 Đăng xuất (Logout)
 // ----------------------
 exports.logout = (req, res) => {
   // JWT không lưu trên server, nên chỉ cần client xóa token là xong
   res.status(200).json({ message: "Đăng xuất thành công! (Client xóa token)" });
- backend
-backend
 };

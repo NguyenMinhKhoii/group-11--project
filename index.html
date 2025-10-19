@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group 11 - RBAC System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-box" style="text-align: center;">
+        <h2>🏠 Group 11 - RBAC System</h2>
+        <p class="text-muted">Chào mừng đến với hệ thống quản lý quyền</p>
+        
+        <div style="margin: 30px 0;">
+            <a href="signup.html" class="btn" style="display: inline-block; margin: 10px; text-decoration: none;">📝 Đăng ký</a>
+            <a href="login.html" class="btn" style="display: inline-block; margin: 10px; text-decoration: none;">🔐 Đăng nhập</a>
+        </div>
+
+        <div class="switch-text">
+            <p>🎯 <strong>Hoạt động 2:</strong> Advanced RBAC System</p>
+            <p>📷 <strong>Hoạt động 3:</strong> Avatar Upload System</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto redirect to dashboard if already logged in
+        const user = localStorage.getItem('user');
+        if (user) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👤 Hồ sơ người dùng - RBAC System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="dashboard.html">
+        <i class="bi bi-shield-check"></i>
+        🔐 RBAC System
+      </a>
+      <div class="navbar-nav ms-auto">
+        <span class="navbar-text me-3">
+          👤 <span id="navUserRole">Loading...</span>
+        </span>
+        <button class="btn btn-outline-light btn-sm" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Đăng xuất
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="text-primary">
+              <i class="bi bi-person-circle"></i> 👤 Hồ sơ người dùng
+            </h2>
+            <p class="text-muted">Xem và chỉnh sửa thông tin cá nhân</p>
+          </div>
+          <a href="dashboard.html" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 🔙 Quay lại Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="row g-4">
+      <!-- Profile Info Card -->
+      <div class="col-xl-4 col-lg-5">
+        <div class="card card-success">
+          <div class="card-body text-center">
+            <div class="profile-avatar mb-4">
+              <img id="profileAvatar" src="https://via.placeholder.com/200/cccccc/666666?text=Avatar" 
+                   alt="Avatar" class="rounded-circle" width="200" height="200">
+            </div>
+            <h4 id="profileName" class="card-title mb-2">Loading...</h4>
+            <p id="profileEmail" class="text-muted fs-5 mb-3">Loading...</p>
+            <div class="badge-container">
+              <span id="profileRoleBadge" class="badge bg-primary fs-6">USER</span>
+            </div>
+            
+            <div class="profile-stats">
+              <div class="row text-center">
+                <div class="col-4">
+                  <div class="stat-item">
+                    <h4 class="mb-1">📅</h4>
+                    <h6 class="mb-0">30 ngày</h6>
+                    <small>Tham gia</small>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="stat-item">
+                    <h4 class="mb-1">🎯</h4>
+                    <h6 class="mb-0">127</h6>
+                    <small>Hoạt động</small>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="stat-item">
+                    <h4 class="mb-1">⭐</h4>
+                    <h6 class="mb-0">4.8</h6>
+                    <small>Đánh giá</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 d-grid gap-2">
+              <button class="btn btn-primary btn-custom" onclick="window.location.href='upload-avatar.html'">
+                <i class="bi bi-camera"></i> 📷 Đổi Avatar
+              </button>
+              <button class="btn btn-success btn-custom" onclick="window.location.href='dashboard.html'">
+                <i class="bi bi-speedometer2"></i> 📊 Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-lightning"></i> ⚡ Thao tác nhanh</h6>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <button class="btn btn-outline-primary btn-sm" onclick="document.getElementById('edit-tab').click()">
+                <i class="bi bi-pencil"></i> ✏️ Chỉnh sửa hồ sơ
+              </button>
+              <button class="btn btn-outline-warning btn-sm" onclick="document.getElementById('password-tab').click()">
+                <i class="bi bi-key"></i> 🔑 Đổi mật khẩu
+              </button>
+              <button class="btn btn-outline-info btn-sm" onclick="window.location.href='upload-avatar.html'">
+                <i class="bi bi-image"></i> 🖼️ Quản lý ảnh
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Details & Edit -->
+      <div class="col-xl-8 col-lg-7">
+        <div class="card">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="profileTabs">
+              <li class="nav-item">
+                <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info" role="tab">
+                  <i class="bi bi-info-circle"></i> 📋 Thông tin chi tiết
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="edit-tab" data-bs-toggle="tab" href="#edit" role="tab">
+                  <i class="bi bi-pencil"></i> ✏️ Chỉnh sửa hồ sơ
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="password-tab" data-bs-toggle="tab" href="#password" role="tab">
+                  <i class="bi bi-key"></i> 🔑 Bảo mật & Mật khẩu
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body">
+            <div class="tab-content">
+              <!-- Info Tab -->
+              <div class="tab-pane fade show active" id="info" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5 class="mb-0">📋 Thông tin chi tiết</h5>
+                  <button class="btn btn-outline-primary btn-sm" onclick="document.getElementById('edit-tab').click()">
+                    <i class="bi bi-pencil"></i> Chỉnh sửa
+                  </button>
+                </div>
+                
+                <div class="row g-4">
+                  <div class="col-lg-6">
+                    <h6 class="text-primary mb-3">👤 Thông tin cơ bản</h6>
+                    <div class="info-item">
+                      <label>📧 Địa chỉ Email</label>
+                      <p id="infoEmail">Loading...</p>
+                    </div>
+                    <div class="info-item">
+                      <label>👤 Họ và tên</label>
+                      <p id="infoFullname">Loading...</p>
+                    </div>
+                    <div class="info-item">
+                      <label>🎭 Vai trò trong hệ thống</label>
+                      <p id="infoRole">Loading...</p>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <h6 class="text-primary mb-3">📞 Thông tin liên hệ</h6>
+                    <div class="info-item">
+                      <label>📱 Số điện thoại</label>
+                      <p id="infoPhone">Chưa cập nhật</p>
+                    </div>
+                    <div class="info-item">
+                      <label>📍 Địa chỉ</label>
+                      <p id="infoAddress">Chưa cập nhật</p>
+                    </div>
+                    <div class="info-item">
+                      <label>📝 Giới thiệu bản thân</label>
+                      <p id="infoBio">Chưa cập nhật</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Activity Summary -->
+                <hr class="my-4">
+                <div class="row text-center">
+                  <div class="col-md-3">
+                    <div class="activity-stat">
+                      <h4 class="text-primary mb-1">🔐</h4>
+                      <h5 class="mb-1">15</h5>
+                      <small class="text-muted">Lần đăng nhập</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="activity-stat">
+                      <h4 class="text-success mb-1">📊</h4>
+                      <h5 class="mb-1">42</h5>
+                      <small class="text-muted">Hoạt động</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="activity-stat">
+                      <h4 class="text-warning mb-1">🕒</h4>
+                      <h5 class="mb-1">2h 30m</h5>
+                      <small class="text-muted">Thời gian online</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="activity-stat">
+                      <h4 class="text-info mb-1">📅</h4>
+                      <h5 class="mb-1">30 ngày</h5>
+                      <small class="text-muted">Thành viên</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Tab -->
+              <div class="tab-pane fade" id="edit" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5 class="mb-0">✏️ Chỉnh sửa thông tin hồ sơ</h5>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('info-tab').click()">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                  </button>
+                </div>
+                
+                <form id="editProfileForm">
+                  <div class="row g-4">
+                    <div class="col-lg-6">
+                      <div class="card border-0 bg-light">
+                        <div class="card-header bg-primary text-white">
+                          <h6 class="mb-0">👤 Thông tin cá nhân</h6>
+                        </div>
+                        <div class="card-body">
+                          <div class="mb-4">
+                            <label class="form-label fw-bold">👤 Họ và tên đầy đủ *</label>
+                            <input type="text" class="form-control form-control-lg" id="editFullname" required 
+                                   placeholder="Nhập họ tên đầy đủ của bạn">
+                            <div class="form-text">Tên này sẽ hiển thị công khai trong hệ thống</div>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label fw-bold">� Giới thiệu bản thân</label>
+                            <textarea class="form-control" id="editBio" rows="4" 
+                                      placeholder="Viết vài dòng giới thiệu về bản thân, sở thích, kinh nghiệm..."></textarea>
+                            <div class="form-text">Tối đa 500 ký tự</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                      <div class="card border-0 bg-light">
+                        <div class="card-header bg-success text-white">
+                          <h6 class="mb-0">📞 Thông tin liên hệ</h6>
+                        </div>
+                        <div class="card-body">
+                          <div class="mb-4">
+                            <label class="form-label fw-bold">� Số điện thoại</label>
+                            <input type="tel" class="form-control form-control-lg" id="editPhone" 
+                                   placeholder="Ví dụ: 0901234567">
+                            <div class="form-text">Số điện thoại để liên hệ khi cần thiết</div>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label fw-bold">� Địa chỉ</label>
+                            <input type="text" class="form-control form-control-lg" id="editAddress" 
+                                   placeholder="Ví dụ: Quận 1, TP.HCM">
+                            <div class="form-text">Địa chỉ hiện tại của bạn</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mt-4">
+                    <div class="col-12">
+                      <div class="d-flex justify-content-end gap-3">
+                        <button type="button" class="btn btn-secondary btn-lg" onclick="document.getElementById('info-tab').click()">
+                          <i class="bi bi-x-circle"></i> Hủy bỏ
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg">
+                          <i class="bi bi-check-circle"></i> ✅ Lưu thay đổi
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Password Tab -->
+              <div class="tab-pane fade" id="password" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5 class="mb-0">🔑 Bảo mật & Đổi mật khẩu</h5>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('info-tab').click()">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                  </button>
+                </div>
+                
+                <div class="row g-4">
+                  <div class="col-lg-8">
+                    <div class="card border-0 bg-light">
+                      <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">🔒 Thay đổi mật khẩu</h6>
+                      </div>
+                      <div class="card-body">
+                        <form id="changePasswordForm">
+                          <div class="mb-4">
+                            <label class="form-label fw-bold">🔒 Mật khẩu hiện tại *</label>
+                            <input type="password" class="form-control form-control-lg" id="currentPassword" required 
+                                   placeholder="Nhập mật khẩu đang sử dụng">
+                            <div class="form-text">Để xác minh danh tính của bạn</div>
+                          </div>
+                          <div class="mb-4">
+                            <label class="form-label fw-bold">🆕 Mật khẩu mới *</label>
+                            <input type="password" class="form-control form-control-lg" id="newPassword" required minlength="6"
+                                   placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)">
+                            <div class="form-text">Mật khẩu mới phải khác mật khẩu hiện tại</div>
+                          </div>
+                          <div class="mb-4">
+                            <label class="form-label fw-bold">🔁 Xác nhận mật khẩu mới *</label>
+                            <input type="password" class="form-control form-control-lg" id="confirmPassword" required
+                                   placeholder="Nhập lại mật khẩu mới để xác nhận">
+                            <div class="form-text">Phải trùng khớp với mật khẩu mới ở trên</div>
+                          </div>
+                          
+                          <div class="d-flex justify-content-end gap-3 mt-4">
+                            <button type="button" class="btn btn-secondary btn-lg" onclick="document.getElementById('changePasswordForm').reset()">
+                              <i class="bi bi-arrow-clockwise"></i> Làm mới
+                            </button>
+                            <button type="submit" class="btn btn-warning btn-lg">
+                              <i class="bi bi-key"></i> 🔑 Đổi mật khẩu
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-lg-4">
+                    <div class="card border-0">
+                      <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">💡 Hướng dẫn bảo mật</h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="security-tips">
+                          <div class="tip-item mb-3">
+                            <h6 class="text-success">✅ Mật khẩu mạnh cần có:</h6>
+                            <ul class="small">
+                              <li>Tối thiểu 8 ký tự</li>
+                              <li>Chữ hoa (A-Z)</li>
+                              <li>Chữ thường (a-z)</li>
+                              <li>Số (0-9)</li>
+                              <li>Ký tự đặc biệt (!@#$%)</li>
+                            </ul>
+                          </div>
+                          
+                          <div class="tip-item mb-3">
+                            <h6 class="text-danger">❌ Tránh sử dụng:</h6>
+                            <ul class="small">
+                              <li>Thông tin cá nhân (tên, ngày sinh)</li>
+                              <li>Từ điển thông thường</li>
+                              <li>Chuỗi ký tự liên tiếp (123456)</li>
+                              <li>Mật khẩu đã dùng trước đây</li>
+                            </ul>
+                          </div>
+                          
+                          <div class="alert alert-warning small">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Lưu ý:</strong> Không chia sẻ mật khẩu với bất kỳ ai và thay đổi định kỳ mỗi 3-6 tháng.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    const API_BASE_URL = 'http://localhost:5173/api/auth';
+    
+    // Load profile on page load
+    window.addEventListener('load', () => {
+        loadProfile();
+        
+        // Check if we need to show password tab directly
+        if (window.location.hash === '#password') {
+            document.getElementById('password-tab').click();
+        }
+    });
+
+    function loadProfile() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!user.email) {
+            alert('❌ Vui lòng đăng nhập để xem hồ sơ!');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Display user info in navbar
+        const roleText = user.role === 'admin' ? 'Admin (admin)' : 
+                        user.role === 'moderator' ? 'Moderator (moderator)' : 
+                        'Regular User (user)';
+        document.getElementById('navUserRole').textContent = roleText;
+
+        // Load profile data from server
+        fetchProfileData(user.email);
+    }
+
+    async function fetchProfileData(email) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile/${encodeURIComponent(email)}`);
+            const data = await response.json();
+
+            if (data.success) {
+                displayProfileData(data.user);
+            } else {
+                // Fallback to localStorage data
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                displayProfileData(user);
+            }
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            // Fallback to localStorage data
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            displayProfileData(user);
+        }
+    }
+
+    function displayProfileData(user) {
+        console.log('🔄 Displaying profile data:', user);
+        
+        // Profile card - Handle avatar with fallback
+        const avatarElement = document.getElementById('profileAvatar');
+        const avatarUrl = user.avatar || `https://via.placeholder.com/200/667eea/white?text=${encodeURIComponent(user.fullname || 'User')}`;
+        
+        console.log('🖼️ Setting avatar URL:', avatarUrl);
+        avatarElement.src = avatarUrl;
+        
+        // Add error handler for avatar loading
+        avatarElement.onerror = function() {
+            console.log('❌ Avatar load failed, using fallback');
+            this.src = `https://via.placeholder.com/200/cccccc/666666?text=${encodeURIComponent(user.fullname || 'Avatar')}`;
+            this.onerror = null; // Prevent infinite loop
+        };
+        
+        // Ensure avatar loads properly
+        avatarElement.onload = function() {
+            console.log('✅ Avatar loaded successfully');
+        };
+        
+        document.getElementById('profileName').textContent = user.fullname || 'Unknown User';
+        document.getElementById('profileEmail').textContent = user.email || '';
+        
+        // Role badge
+        const roleBadge = document.getElementById('profileRoleBadge');
+        const roleMap = {
+            admin: { text: 'ADMIN', class: 'bg-danger' },
+            moderator: { text: 'MODERATOR', class: 'bg-warning' },
+            user: { text: 'USER', class: 'bg-primary' }
+        };
+        const roleInfo = roleMap[user.role] || roleMap.user;
+        roleBadge.textContent = roleInfo.text;
+        roleBadge.className = `badge ${roleInfo.class}`;
+
+        // Info tab
+        document.getElementById('infoEmail').textContent = user.email || '';
+        document.getElementById('infoFullname').textContent = user.fullname || 'Chưa cập nhật';
+        document.getElementById('infoRole').textContent = (user.role || 'user').toUpperCase();
+        document.getElementById('infoPhone').textContent = user.phone || 'Chưa cập nhật';
+        document.getElementById('infoAddress').textContent = user.address || 'Chưa cập nhật';
+        document.getElementById('infoBio').textContent = user.bio || 'Chưa cập nhật';
+
+        // Edit form
+        document.getElementById('editFullname').value = user.fullname || '';
+        document.getElementById('editPhone').value = user.phone || '';
+        document.getElementById('editAddress').value = user.address || '';
+        document.getElementById('editBio').value = user.bio || '';
+    }
+
+    // Edit profile form handler
+    document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const formData = {
+            fullname: document.getElementById('editFullname').value,
+            phone: document.getElementById('editPhone').value,
+            address: document.getElementById('editAddress').value,
+            bio: document.getElementById('editBio').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile/${encodeURIComponent(user.email)}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ ' + data.message);
+                // Update localStorage
+                const updatedUser = { ...user, ...data.user };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                // Refresh display
+                displayProfileData(updatedUser);
+                // Switch back to info tab
+                document.getElementById('info-tab').click();
+            } else {
+                alert('❌ ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('❌ Lỗi kết nối server!');
+        }
+    });
+
+    // Change password form handler
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Validate passwords match
+        if (newPassword !== confirmPassword) {
+            alert('❌ Mật khẩu xác nhận không khớp!');
+            return;
+        }
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(user.email)}/password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ ' + data.message);
+                // Clear form
+                document.getElementById('changePasswordForm').reset();
+                // Switch back to info tab
+                document.getElementById('info-tab').click();
+            } else {
+                alert('❌ ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
+            alert('❌ Lỗi kết nối server!');
+        }
+    });
+
+    function logout() {
+        if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+            localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('authToken');
+            alert('👋 Đã đăng xuất!');
+            window.location.href = 'login.html';
+        }
+    }
+  </script>
+
+  <style>
+    /* Desktop-optimized styles */
+    .container {
+      max-width: 1400px;
+    }
+
+    .profile-avatar img {
+      border: 4px solid #fff;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .profile-avatar img:hover {
+      transform: scale(1.05);
+    }
+
+    .info-item {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .info-item:hover {
+      background: #e9ecef;
+    }
+
+    .info-item label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .info-item p {
+      margin-bottom: 0;
+      font-size: 1.1rem;
+      color: #212529;
+      font-weight: 500;
+    }
+
+    .card-success {
+      border-left: 6px solid #28a745;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .card {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      border: none;
+      border-radius: 12px;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px 12px 0 0 !important;
+    }
+
+    .nav-tabs .nav-link {
+      color: rgba(255,255,255,0.8);
+      border: none;
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 1rem 1.5rem;
+    }
+
+    .nav-tabs .nav-link.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .nav-tabs .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .profile-stats {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .badge-container {
+      margin: 1.5rem 0;
+    }
+
+    .badge {
+      font-size: 0.9rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 20px;
+    }
+
+    .form-control {
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-custom {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      margin: 0.3rem;
+      min-width: 150px;
+    }
+
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .tab-content {
+      padding: 2rem;
+    }
+
+    .alert {
+      border-radius: 12px;
+      border: none;
+      padding: 1.5rem;
+    }
+
+    /* Desktop spacing improvements */
+    h2 {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    h5 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+    }
+
+    .row {
+      margin-bottom: 1rem;
+    }
+
+    /* Navbar enhancements */
+    .navbar {
+      padding: 1rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    /* Profile card enhancements */
+    .text-center img {
+      transition: all 0.3s ease;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    /* Desktop-specific layouts */
+    @media (min-width: 1200px) {
+      .col-md-4 {
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+      }
+      
+      .container {
+        padding: 0 3rem;
+      }
+    }
+
+    /* Enhanced buttons */
+    .btn-success { background: linear-gradient(135deg, #28a745, #20c997); border: none; }
+    .btn-warning { background: linear-gradient(135deg, #ffc107, #fd7e14); border: none; }
+    .btn-info { background: linear-gradient(135deg, #17a2b8, #6f42c1); border: none; }
+    .btn-primary { background: linear-gradient(135deg, #007bff, #6610f2); border: none; }
+    .btn-danger { background: linear-gradient(135deg, #dc3545, #e83e8c); border: none; }
+    .btn-secondary { background: linear-gradient(135deg, #6c757d, #495057); border: none; }
+  </style>
+</body>
+</html>

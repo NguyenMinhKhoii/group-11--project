@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Avatar - Activity 3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 900px;
+            overflow: hidden;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .avatar-display {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .avatar-placeholder {
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .upload-zone {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+            transform: translateY(-5px);
+        }
+        
+        .upload-zone.uploading {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+        
+        .upload-icon {
+            font-size: 50px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn-custom {
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .auth-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .avatar-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .loading-spinner {
+            display: none;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <div id="currentAvatar" class="avatar-display avatar-placeholder">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2>🎯 Hệ Thống Quản Lý Avatar</h2>
+                <p>Activity 3 - Upload Ảnh Nâng Cao với Dữ Liệu Thật</p>
+                <div id="userInfo" class="mt-3">
+                    <span class="status-badge status-warning">Chưa đăng nhập</span>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="p-4">
+                <!-- Authentication Section -->
+                <div id="authSection" class="auth-section">
+                    <h5><i class="fas fa-lock"></i> Đăng Nhập Để Quản Lý Avatar</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-info btn-custom w-100 mb-2" onclick="testRegister()">
+                                <i class="fas fa-user-plus"></i> Đăng Ký Tài Khoản Test
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-success btn-custom w-100 mb-2" onclick="testLogin()">
+                                <i class="fas fa-sign-in-alt"></i> Đăng Nhập Test
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Tài khoản test: <strong>khoi.test@gmail.com</strong> / Password: <strong>123456</strong>
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Avatar Management Section -->
+                <div id="avatarSection" style="display: none;">
+                    <!-- Current Avatar Info -->
+                    <div class="info-card">
+                        <h5><i class="fas fa-info-circle"></i> Thông Tin Avatar Hiện Tại</h5>
+                        <div id="avatarInfo">
+                            <div class="text-center">
+                                <div class="spinner-border loading-spinner" role="status">
+                                    <span class="visually-hidden">Đang tải...</span>
+                                </div>
+                                <p class="text-muted">Đang kiểm tra avatar...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Section -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-cloud-upload-alt"></i> Upload Avatar Mới</h5>
+                            <div id="uploadZone" class="upload-zone" onclick="document.getElementById('avatarFile').click()">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h6>Kéo thả ảnh vào đây hoặc click để chọn</h6>
+                                <p class="text-muted mb-0">
+                                    Hỗ trợ: JPG, PNG, GIF, WebP<br>
+                                    Kích thước tối đa: 5MB<br>
+                                    Tự động resize: 300x300px
+                                </p>
+                            </div>
+                            <input type="file" id="avatarFile" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                            
+                            <!-- Progress Bar -->
+                            <div id="progressContainer" class="progress-container">
+                                <div class="progress">
+                                    <div id="uploadProgress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <p id="progressText" class="text-center mt-2">Đang upload...</p>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <button id="uploadBtn" class="btn btn-primary-custom btn-custom me-2" onclick="uploadAvatar()" disabled>
+                                    <i class="fas fa-upload"></i> Upload Avatar
+                                </button>
+                                <button class="btn btn-danger-custom btn-custom" onclick="deleteAvatar()">
+                                    <i class="fas fa-trash"></i> Xóa Avatar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-eye"></i> Xem Trước Ảnh</h5>
+                            <div class="text-center">
+                                <img id="imagePreview" class="avatar-preview" style="display: none;">
+                                <div id="previewPlaceholder" class="upload-zone">
+                                    <i class="fas fa-image" style="font-size: 40px; color: #ddd;"></i>
+                                    <p class="text-muted mt-2">Chưa chọn ảnh</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messages -->
+                <div id="messages" class="mt-4"></div>
+                
+                <!-- Debug Section -->
+                <div class="info-card">
+                    <h5><i class="fas fa-bug"></i> Thông Tin Debug</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-info btn-sm w-100 mb-2" onclick="testAPIConnection()">
+                                <i class="fas fa-wifi"></i> Test Kết Nối API
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="getCurrentAvatar()">
+                                <i class="fas fa-sync"></i> Refresh Avatar Info
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let selectedFile = null;
+        let currentUser = null;
+        
+        // Check authentication on page load
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Verify token and get user info
+                verifyToken();
+            }
+            
+            setupDragDrop();
+        });
+        
+        // Setup drag and drop functionality
+        function setupDragDrop() {
+            const uploadZone = document.getElementById('uploadZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            uploadZone.addEventListener('drop', handleDrop, false);
+        }
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight(e) {
+            document.getElementById('uploadZone').classList.add('dragover');
+        }
+        
+        function unhighlight(e) {
+            document.getElementById('uploadZone').classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        }
+        
+        // Authentication functions
+        async function testRegister() {
+            showMessage('Đang đăng ký tài khoản test...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth-mongo/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: 'Khoi Test User',
+                        email: 'khoi.test@gmail.com',
+                        password: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('✅ Đăng ký thành công! Bạn có thể đăng nhập ngay.', 'success');
+                } else {
+                    if (data.message && data.message.includes('duplicate')) {
+                        showMessage('ℹ️ Tài khoản đã tồn tại, bạn có thể đăng nhập trực tiếp.', 'info');
+                    } else {
+                        showMessage('❌ Lỗi đăng ký: ' + data.message, 'error');
+                    }
+                }
+            } catch (error) {
+                showMessage('❌ Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            showMessage('Đang đăng nhập...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth-mongo/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'khoi.test@gmail.com',
+                        password: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    currentUser = data.user;
+                    
+                    showMessage('✅ Đăng nhập thành công!', 'success');
+                    updateAuthUI();
+                    getCurrentAvatar();
+                } else {
+                    showMessage('❌ Lỗi đăng nhập: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+        
+        async function verifyToken() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            try {
+                const response = await fetch('/api/auth-mongo/verify', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    updateAuthUI();
+                    getCurrentAvatar();
+                } else {
+                    localStorage.removeItem('authToken');
+                    showMessage('⚠️ Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.', 'warning');
+                }
+            } catch (error) {
+                console.error('Lỗi verify token:', error);
+            }
+        }
+        
+        function updateAuthUI() {
+            if (currentUser) {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('avatarSection').style.display = 'block';
+                
+                document.getElementById('userInfo').innerHTML = `
+                    <span class="status-badge status-success">
+                        <i class="fas fa-user-check"></i> ${currentUser.name || currentUser.email}
+                    </span>
+                    <button class="btn btn-sm btn-outline-light ms-2" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </button>
+                `;
+            } else {
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('avatarSection').style.display = 'none';
+                document.getElementById('userInfo').innerHTML = '<span class="status-badge status-warning">Chưa đăng nhập</span>';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('authToken');
+            currentUser = null;
+            updateAuthUI();
+            showMessage('👋 Đã đăng xuất thành công!', 'info');
+        }
+        
+        // Avatar management functions
+        async function getCurrentAvatar() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            showSpinner('avatarInfo', true);
+            
+            try {
+                const response = await fetch('/api/avatar', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data.avatar) {
+                    const avatar = data.data.avatar;
+                    const user = data.data.user;
+                    
+                    // Update main avatar display
+                    const avatarDisplay = document.getElementById('currentAvatar');
+                    avatarDisplay.innerHTML = `<img src="${avatar.url}" class="avatar-display" alt="Avatar hiện tại">`;
+                    avatarDisplay.classList.remove('avatar-placeholder');
+                    
+                    // Update avatar info
+                    document.getElementById('avatarInfo').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="${avatar.url}" class="img-fluid rounded" style="max-width: 150px;">
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-user"></i> Thông Tin Avatar</h6>
+                                <p><strong>Người dùng:</strong> ${user.name || user.email}</p>
+                                <p><strong>URL:</strong> <a href="${avatar.url}" target="_blank">Xem ảnh gốc</a></p>
+                                <p><strong>Thumbnail:</strong> <a href="${avatar.thumbnail_url}" target="_blank">Xem thumbnail</a></p>
+                                <p><strong>Cloudinary ID:</strong> <code>${avatar.cloudinary_id}</code></p>
+                                <p><strong>Cập nhật lần cuối:</strong> ${new Date(avatar.upload_date).toLocaleString('vi-VN')}</p>
+                                <span class="status-badge status-success">
+                                    <i class="fas fa-check-circle"></i> Có Avatar
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    
+                } else {
+                    // No avatar found
+                    document.getElementById('avatarInfo').innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-user-circle" style="font-size: 60px; color: #ddd;"></i>
+                            <h6 class="mt-3">Chưa Có Avatar</h6>
+                            <p class="text-muted">Hãy upload ảnh avatar đầu tiên của bạn!</p>
+                            <span class="status-badge status-warning">
+                                <i class="fas fa-exclamation-circle"></i> Chưa có avatar
+                            </span>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                document.getElementById('avatarInfo').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Lỗi khi lấy thông tin avatar: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // File handling
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                handleFileSelect(file);
+            }
+        }
+        
+        function handleFileSelect(file) {
+            selectedFile = file;
+            
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                showMessage('❌ Vui lòng chọn file ảnh (JPG, PNG, GIF, WebP)', 'error');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('❌ Kích thước file quá lớn. Tối đa 5MB.', 'error');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                const placeholder = document.getElementById('previewPlaceholder');
+                
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+            
+            // Enable upload button
+            document.getElementById('uploadBtn').disabled = false;
+            showMessage(`✅ Đã chọn file: ${file.name} (${formatFileSize(file.size)})`, 'success');
+        }
+        
+        // Upload avatar
+        async function uploadAvatar() {
+            if (!selectedFile) {
+                showMessage('❌ Vui lòng chọn file trước khi upload!', 'error');
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showMessage('❌ Vui lòng đăng nhập trước!', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('avatar', selectedFile);
+            
+            // Show progress
+            showProgress(true);
+            document.getElementById('uploadZone').classList.add('uploading');
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                // Upload progress
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        updateProgress(percentComplete, 'Đang upload...');
+                    }
+                });
+                
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 200) {
+                        const data = JSON.parse(xhr.responseText);
+                        
+                        if (data.success) {
+                            updateProgress(100, 'Upload thành công!');
+                            showMessage('🎉 Avatar đã được cập nhật thành công!', 'success');
+                            
+                            // Reset form
+                            selectedFile = null;
+                            document.getElementById('avatarFile').value = '';
+                            document.getElementById('imagePreview').style.display = 'none';
+                            document.getElementById('previewPlaceholder').style.display = 'block';
+                            document.getElementById('uploadBtn').disabled = true;
+                            
+                            // Refresh avatar info
+                            setTimeout(() => {
+                                getCurrentAvatar();
+                                hideProgress();
+                            }, 2000);
+                            
+                        } else {
+                            throw new Error(data.message || 'Upload failed');
+                        }
+                    } else {
+                        throw new Error('HTTP ' + xhr.status);
+                    }
+                });
+                
+                xhr.addEventListener('error', function() {
+                    throw new Error('Network error');
+                });
+                
+                xhr.open('POST', '/api/avatar/upload');
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                xhr.send(formData);
+                
+            } catch (error) {
+                hideProgress();
+                showMessage('❌ Lỗi upload: ' + error.message, 'error');
+            } finally {
+                document.getElementById('uploadZone').classList.remove('uploading');
+            }
+        }
+        
+        // Delete avatar
+        async function deleteAvatar() {
+            if (!confirm('⚠️ Bạn có chắc chắn muốn xóa avatar hiện tại?')) {
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showMessage('❌ Vui lòng đăng nhập trước!', 'error');
+                return;
+            }
+            
+            showMessage('Đang xóa avatar...', 'info');
+            
+            try {
+                const response = await fetch('/api/avatar/avatar', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('✅ Đã xóa avatar thành công!', 'success');
+                    
+                    // Reset avatar display
+                    document.getElementById('currentAvatar').innerHTML = '<i class="fas fa-user"></i>';
+                    document.getElementById('currentAvatar').classList.add('avatar-placeholder');
+                    
+                    // Refresh info
+                    getCurrentAvatar();
+                } else {
+                    showMessage('❌ Lỗi xóa avatar: ' + data.message, 'error');
+                }
+                
+            } catch (error) {
+                showMessage('❌ Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+        
+        // Utility functions
+        async function testAPIConnection() {
+            showMessage('Đang kiểm tra kết nối API...', 'info');
+            
+            try {
+                const response = await fetch('/api/avatar/test');
+                const data = await response.json();
+                
+                if (data.message) {
+                    showMessage('✅ Kết nối API thành công: ' + data.message, 'success');
+                } else {
+                    showMessage('⚠️ API phản hồi bất thường', 'warning');
+                }
+            } catch (error) {
+                showMessage('❌ Lỗi kết nối API: ' + error.message, 'error');
+            }
+        }
+        
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            const alertClass = type === 'success' ? 'alert-success' : 
+                             type === 'error' ? 'alert-danger' : 
+                             type === 'warning' ? 'alert-warning' : 'alert-info';
+                             
+            messagesDiv.innerHTML = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // Auto dismiss after 5 seconds for non-error messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    const alert = messagesDiv.querySelector('.alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+        }
+        
+        function showProgress(show) {
+            document.getElementById('progressContainer').style.display = show ? 'block' : 'none';
+        }
+        
+        function updateProgress(percent, text) {
+            document.getElementById('uploadProgress').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text + ` (${Math.round(percent)}%)`;
+        }
+        
+        function hideProgress() {
+            setTimeout(() => {
+                showProgress(false);
+            }, 2000);
+        }
+        
+        function showSpinner(elementId, show) {
+            const element = document.getElementById(elementId);
+            if (show) {
+                element.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border loading-spinner" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="text-muted mt-2">Đang tải thông tin...</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

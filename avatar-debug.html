@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Avatar Debug Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>🔧 Avatar Debug Test</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>📋 Current User Data</h3>
+                <pre id="userData" class="bg-light p-3"></pre>
+                
+                <h3>🖼️ Avatar Tests</h3>
+                <div class="mb-3">
+                    <label>Test Avatar 1 (Placeholder):</label>
+                    <br>
+                    <img src="https://via.placeholder.com/150/667eea/white?text=Test" 
+                         alt="Test 1" width="150" height="150" class="border">
+                </div>
+                
+                <div class="mb-3">
+                    <label>Test Avatar 2 (User Avatar from localStorage):</label>
+                    <br>
+                    <img id="testAvatar" src="" alt="Test 2" width="150" height="150" class="border">
+                </div>
+                
+                <div class="mb-3">
+                    <label>Test Avatar 3 (Backend User):</label>
+                    <br>
+                    <img id="backendAvatar" src="" alt="Test 3" width="150" height="150" class="border">
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h3>🔄 Actions</h3>
+                <button class="btn btn-primary" onclick="testLogin()">Test Login as Admin</button>
+                <button class="btn btn-success" onclick="testUserLogin()">Test Login as User</button>
+                <button class="btn btn-info" onclick="loadFromAPI()">Load from API</button>
+                <button class="btn btn-warning" onclick="clearStorage()">Clear Storage</button>
+                
+                <h3>📊 Debug Log</h3>
+                <div id="debugLog" class="bg-dark text-light p-3" style="height: 300px; overflow-y: scroll;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5173/api/auth';
+        
+        function log(message) {
+            const logDiv = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateUserDataDisplay() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userData').textContent = JSON.stringify(user, null, 2);
+            
+            if (user.avatar) {
+                document.getElementById('testAvatar').src = user.avatar;
+                log(`✅ Updated test avatar: ${user.avatar}`);
+            } else {
+                log(`❌ No avatar in localStorage`);
+            }
+        }
+        
+        async function testLogin() {
+            try {
+                log('🔄 Testing admin login...');
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@test.com',
+                        password: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                log(`📡 Login response: ${JSON.stringify(data)}`);
+                
+                if (data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    log(`✅ Admin login successful`);
+                    updateUserDataDisplay();
+                } else {
+                    log(`❌ Login failed: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`);
+            }
+        }
+        
+        async function testUserLogin() {
+            try {
+                log('🔄 Testing user login...');
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'user@test.com',
+                        password: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                log(`📡 Login response: ${JSON.stringify(data)}`);
+                
+                if (data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    log(`✅ User login successful`);
+                    updateUserDataDisplay();
+                } else {
+                    log(`❌ Login failed: ${data.message}`);
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`);
+            }
+        }
+        
+        async function loadFromAPI() {
+            try {
+                log('🔄 Loading users from API...');
+                const response = await fetch(`${API_BASE_URL}/users`);
+                const data = await response.json();
+                
+                log(`📡 API response: ${JSON.stringify(data)}`);
+                
+                if (data.success && data.users.length > 0) {
+                    const firstUser = data.users[0];
+                    if (firstUser.avatar) {
+                        document.getElementById('backendAvatar').src = firstUser.avatar;
+                        log(`✅ Loaded backend avatar: ${firstUser.avatar}`);
+                    } else {
+                        log(`❌ No avatar in backend user`);
+                    }
+                }
+            } catch (error) {
+                log(`❌ API error: ${error.message}`);
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            log('🗑️ Storage cleared');
+            updateUserDataDisplay();
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            log('🚀 Avatar Debug Test loaded');
+            updateUserDataDisplay();
+            
+            // Test image error handling
+            document.getElementById('testAvatar').onerror = function() {
+                log('❌ Test avatar failed to load');
+            };
+            document.getElementById('testAvatar').onload = function() {
+                log('✅ Test avatar loaded successfully');
+            };
+            
+            document.getElementById('backendAvatar').onerror = function() {
+                log('❌ Backend avatar failed to load');
+            };
+            document.getElementById('backendAvatar').onload = function() {
+                log('✅ Backend avatar loaded successfully');
+            };
+        });
+    </script>
+</body>
+</html>

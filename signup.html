@@ -8,7 +8,13 @@
 </head>
 <body>
   <form class="form-box" id="signupForm">
-    <h2>Đăng ký tài khoản</h2>
+    <h2>🏠 Đăng ký tài khoản - Group 11</h2>
+    
+    <!-- Activity Header -->
+    <div class="activity-header">
+      <span class="activity-badge">🔥 Hoạt động 2 - Advanced RBAC System</span>
+      <p class="activity-desc">Đăng ký tài khoản để trải nghiệm hệ thống phân quyền nâng cao!</p>
+    </div>
 
     <div class="input-group">
       <label>Họ và tên</label>
@@ -23,6 +29,16 @@
     <div class="input-group">
       <label>Mật khẩu</label>
       <input type="password" id="password" placeholder="Nhập mật khẩu" required />
+    </div>
+
+    <div class="input-group">
+      <label>🎭 Role (Vai trò)</label>
+      <select id="role" class="form-select">
+        <option value="user">👤 User (Người dùng)</option>
+        <option value="moderator">🛡️ Moderator (Quản trị viên)</option>
+        <option value="admin">👑 Admin (Quản lý cao nhất)</option>
+      </select>
+      <small class="text-muted">Chọn role để test chức năng RBAC</small>
     </div>
 
     <button type="submit" class="btn">Đăng ký</button>
@@ -44,12 +60,13 @@
     const fullname = document.getElementById("fullname").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/signup", {
+      const res = await fetch("http://localhost:5173/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: fullname, email, password }), // ✅ FIX
+        body: JSON.stringify({ fullname, name: fullname, email, password, role }), // ✅ Include role
       });
 
       const data = await res.json();
