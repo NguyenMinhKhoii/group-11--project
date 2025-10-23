@@ -2,10 +2,11 @@
   "name": "backend-server",
   "version": "1.0.0",
   "main": "server.js",
-  "type": "commonjs",
-  "scripts": {
+  "type": "commonjs",  "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "start:prod": "NODE_ENV=production node server.js",
+    "test:db": "node testProductionDB.js",
     "test:refresh-basic": "node basicTest.js",
     "test:refresh-full": "node fullRefreshTokenTest.js",
     "test:rbac": "node testRBACSchema.js",
@@ -19,7 +20,8 @@
     "test:logging": "node testActivityLogging.js",
     "test:sv5": "node testActivityLogging.js",
     "test:redux-api": "node testReduxAPI.js",
-    "test:sv6": "node testReduxAPI.js"
+    "test:sv6": "node testReduxAPI.js",
+    "fix:users": "node fixTestUsers.js"
   },
   "dependencies": {
     "axios": "^1.12.2",
