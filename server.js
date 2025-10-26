@@ -128,5 +128,5 @@ app.post('/api/avatar/upload', upload.single('avatar'), (req, res) => {
 // ✅ Đăng ký route auth
 app.use("/api/auth", authRoutes);
 
-const PORT = 5173;
+const PORT = 5000; // Sửa cổng về 5000 để khớp với frontend
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

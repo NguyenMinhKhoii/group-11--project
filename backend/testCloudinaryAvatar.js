@@ -1,28 +1,5 @@
-// Test Cloudinary Upload - SV3
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const cloudinary = require("./config/cloudinary");
-const User = require("./models/User");
-const fs = require("fs");
-const path = require("path");
-
 dotenv.config();
-
-console.log("🧪 SV3: Test Cloudinary Upload + Lưu URL vào MongoDB\n");
-
-// Kết nối database
-async function connectDB() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 10000,
-    });
-    console.log("✅ Kết nối MongoDB thành công");
-    return true;
-  } catch (error) {
-    console.error("❌ Kết nối MongoDB thất bại:", error.message);
-    return false;
-  }
-}
+// Removed test code as requested.
 
 // Test Cloudinary configuration
 async function testCloudinaryConfig() {

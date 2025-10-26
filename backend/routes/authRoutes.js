@@ -36,13 +36,18 @@ const TEST_USERS = [
 
 // === SV1: API /auth/register ===
 router.post("/register", 
-  logActivity(ACTIONS.REGISTER_ATTEMPT),
+  logActivity(ACTIONS.REGISTER),
   (req, res) => {
-    const { name, email, password, role = ROLES.USER } = req.body;
+    console.log('[DEBUG] Register request body:', req.body);
+    const { fullname, name, email, password, role = ROLES.USER } = req.body;
+    const userName = fullname || name; // Support both fullname and name
+    console.log('[DEBUG] Parsed values:', { userName, email, password: password ? '***' : 'empty', role });
 
     // Kiểm tra input
-    if (!name || !email || !password) {
+    if (!userName || !email || !password) {
+      console.log('[DEBUG] Validation failed:', { userName: !!userName, email: !!email, password: !!password });
       return res.status(400).json({ 
+        success: false,
         error: "Tên, email và mật khẩu là bắt buộc!" 
       });
     }
@@ -50,7 +55,9 @@ router.post("/register",
     // Kiểm tra email đã tồn tại
     const existingUser = TEST_USERS.find(u => u.email === email);
     if (existingUser) {
+      console.log('[DEBUG] Email already exists:', email);
       return res.status(400).json({ 
+        success: false,
         error: "Email đã được sử dụng!" 
       });
     }
@@ -60,14 +67,15 @@ router.post("/register",
       id: TEST_USERS.length + 1,
       email,
       password,
-      name,
+      name: userName,
       role: role || ROLES.USER
     };
 
     // Thêm vào danh sách users
     TEST_USERS.push(newUser);
-
+    console.log('[DEBUG] User created successfully:', newUser);
     res.status(201).json({
+      success: true,
       message: "Đăng ký thành công!",
       user: {
         id: newUser.id,
@@ -81,8 +89,8 @@ router.post("/register",
 
 // === SV1: API /auth/login ===
 router.post("/login", 
-  loginRateLimit({ maxAttempts: 5 }),
-  logActivity(ACTIONS.LOGIN_ATTEMPT),
+  loginRateLimit,
+  logActivity(ACTIONS.LOGIN),
   (req, res) => {
   const { email, password } = req.body;
 

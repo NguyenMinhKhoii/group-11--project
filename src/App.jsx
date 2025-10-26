@@ -155,20 +155,10 @@ const AppLayout = () => {
       </nav>
 
       <Routes>
-        {/* Main Dashboard Route */}
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* New Redux Routes */}
+        {/* Default route: LoginPage */}
+        <Route path="/" element={<LoginPage />} />
         <Route path="/redux-login" element={<LoginPage />} />
         <Route path="/redux-register" element={<RegisterPage />} />
-        
         {/* Protected Routes */}
         <Route 
           path="/profile-redux" 
@@ -178,12 +168,20 @@ const AppLayout = () => {
             </ProtectedRoute>
           } 
         />
-        
         <Route 
           path="/admin-redux" 
           element={
             <ProtectedRoute requiredRole="admin">
               <AdminPage />
+            </ProtectedRoute>
+          } 
+        />
+        {/* Dashboard route (chỉ vào khi đã login) */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
             </ProtectedRoute>
           } 
         />

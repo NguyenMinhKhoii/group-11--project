@@ -1,27 +1,6 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const jwt = require("jsonwebtoken");
-const path = require("path");
-const multer = require("multer");
-
 dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Increase payload limit
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-// Serve static files from parent directory
-app.use(express.static(path.join(__dirname, '..')));
-
-// Test users
-const TEST_USERS = [
-  { id: 1, email: "user@example.com", password: "123456", name: "Test User", avatar: null, role: "user" },
-  { id: 2, email: "admin@example.com", password: "123456", name: "Admin User", avatar: null, role: "admin" },
-  { id: 3, email: "khoi@gmail.com", password: "123456", name: "Quoc Khoi", avatar: null, role: "admin" },
-  { id: 4, email: "student@example.com", password: "123456", name: "Student Test", avatar: null, role: "user" }
-];
+// Removed test code as requested.
+// Removed test code as requested.
 
 // Reset tokens storage
 let resetTokens = {};

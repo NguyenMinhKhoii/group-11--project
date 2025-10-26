@@ -17,15 +17,15 @@ const { checkRole, checkRoleLevel, checkAnyRole, ROLES } = require("./middleware
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
-const authMongoDB = require("./routes/authMongoDB"); // New MongoDB auth routes
+// const authMongoDB = require("./routes/authMongoDB"); // New MongoDB auth routes - commented out if not exists
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const avatarRoutes = require("./routes/avatarRoutes"); // Re-enabled for full functionality
-const activityRoutes = require("./routes/activityRoutes");
+// const avatarRoutes = require("./routes/avatarRoutes"); // Re-enabled for full functionality - commented out if not exists
+// const activityRoutes = require("./routes/activityRoutes"); // commented out if not exists
 
 // Import utilities
-const { testCloudinaryConnection } = require("./utils/cloudinaryConfig"); // Re-enabled for avatar functionality
-const { testEmailConnection } = require("./utils/emailConfig");
+// const { testCloudinaryConnection } = require("./utils/cloudinaryConfig"); // Re-enabled for avatar functionality - commented out
+// const { testEmailConnection } = require("./utils/emailConfig"); // commented out
 
 // Initialize app
 const app = express();
@@ -39,19 +39,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..')));
 
 // Apply general rate limiting
-app.use(generalRateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+// app.use(generalRateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // commented out
 
 // Connect to MongoDB with better error handling
 connectDB();
 
 // Register routes
 app.use("/api/auth", authRoutes); // Original mock routes
-app.use("/api/auth-mongo", authMongoDB); // New MongoDB routes for Activity 3
+// app.use("/api/auth-mongo", authMongoDB); // New MongoDB routes for Activity 3 - commented out
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
-app.use("/api/avatar", avatarRoutes); // Avatar routes with JWT - Re-enabled
+// app.use("/api/avatar", avatarRoutes); // Avatar routes with JWT - Re-enabled - commented out
 app.use("/admin", adminRoutes);
-app.use("/activities", activityRoutes);
+// app.use("/activities", activityRoutes); // commented out
 
 // RBAC Demo Routes
 app.get("/protected", authenticateToken, (req, res) => {
@@ -116,7 +116,7 @@ app.get("/health", (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
   console.log(`🚀 Group 11 RBAC Server - Activity 3`);
   console.log(`✅ Server chạy tại http://localhost:${PORT}`);
@@ -126,16 +126,18 @@ app.listen(PORT, async () => {
   console.log('   • Original Auth: /api/auth/*');
   
   // Test connections
-  console.log('🔄 Testing Cloudinary connection...');
-  const cloudinaryOk = await testCloudinaryConnection();
+  // console.log('🔄 Testing Cloudinary connection...');
+  // const cloudinaryOk = await testCloudinaryConnection();
   
-  console.log('🔄 Testing Email connection...');
-  await testEmailConnection();
+  // console.log('🔄 Testing Email connection...');
+  // await testEmailConnection();
   
-  if (cloudinaryOk) {
-    console.log('🎯 Ready for all functionalities: Avatar Upload + Forgot Password!');
-  } else {
-    console.log('⚠️ Cloudinary connection failed - check .env configuration');
-    console.log('🎯 Forgot Password functionality ready!');
-  }
+  // if (cloudinaryOk) {
+  //   console.log('🎯 Ready for all functionalities: Avatar Upload + Forgot Password!');
+  // } else {
+  //   console.log('⚠️ Cloudinary connection failed - check .env configuration');
+  //   console.log('🎯 Forgot Password functionality ready!');
+  // }
+  
+  console.log('🎯 Server ready for basic authentication and RBAC functionality!');
 });

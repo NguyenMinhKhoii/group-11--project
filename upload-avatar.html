@@ -24,7 +24,7 @@
             transition: all 0.3s ease;
         }
         
-        .upload-zone:hover {
+        .upload-zone:hover, .upload-zone.upload-zone-hover {
             border-color: #007bff;
             background: #e3f2fd;
         }
@@ -35,6 +35,10 @@
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid #007bff;
+        }
+
+        #currentAvatarContainer {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -48,7 +52,7 @@
                     </div>
                     <div class="card-body">
                         <!-- Current Avatar -->
-                        <div class="text-center mb-4">
+                        <div id="currentAvatarContainer" class="text-center mb-4">
                             <h6>🖼️ Avatar hiện tại</h6>
                             <img id="currentAvatar" src="https://via.placeholder.com/150?text=No+Avatar" 
                                  class="preview-image mb-3" alt="Current Avatar">
@@ -56,7 +60,7 @@
                         </div>
 
                         <!-- Upload Zone -->
-                        <div id="uploadZone" class="upload-zone" onclick="selectFile()">
+                        <div id="uploadZone" class="upload-zone">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                             <h5>📁 Kéo thả file vào đây hoặc click để chọn</h5>
                             <p class="text-muted">Hỗ trợ: JPG, PNG, GIF (Max 5MB)</p>
@@ -64,7 +68,7 @@
 
                         <!-- File Input -->
                         <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-
+                        
                         <!-- Preview Section -->
                         <div id="previewSection" style="display: none;" class="mt-4">
                             <h6>🔍 Xem trước</h6>
@@ -86,14 +90,9 @@
                             </div>
                         </div>
 
-                        <!-- Result -->
-                        <div id="resultSection" style="display: none;" class="mt-4">
-                            <div class="alert alert-success">
-                                <h6>✅ Upload thành công!</h6>
-                                <p>Avatar URL: <span id="avatarUrl"></span></p>
-                                <button class="btn btn-primary" onclick="saveAvatar()">💾 Lưu avatar</button>
-                            </div>
-                        </div>
+                        <!-- Notification Area -->
+                        <div id="notification" class="alert" style="display: none;"></div>
+
 
                         <!-- Navigation -->
                         <div class="text-center mt-4">
@@ -105,206 +104,9 @@
         </div>
     </div>
 
-    <script>
-        // Get user info
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        document.getElementById('userName').textContent = user.name || 'Unknown User';
-        
-        // Display current avatar if exists
-        if (user.avatar) {
-            document.getElementById('currentAvatar').src = user.avatar;
-            document.querySelector('#avatarSection small').textContent = 'Avatar hiện tại';
-        }
-
-        let selectedFile = null;
-
-        // Select file function
-        function selectFile() {
-            document.getElementById('fileInput').click();
-        }
-
-        // Handle file selection
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Validate file
-            if (!file.type.startsWith('image/')) {
-                alert('❌ Vui lòng chọn file hình ảnh!');
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                alert('❌ File không được lớn hơn 5MB!');
-                return;
-            }
-
-            selectedFile = file;
-            
-            // Show preview
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewImage').src = e.target.result;
-                document.getElementById('previewSection').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Upload to Cloudinary (Demo)
-        function uploadToCloudinary() {
-            if (!selectedFile) return;
-
-            // Show progress
-            document.getElementById('progressSection').style.display = 'block';
-            const progressBar = document.getElementById('progressBar');
-            
-            // Simulate upload progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 20;
-                if (progress > 100) progress = 100;
-                
-                progressBar.style.width = progress + '%';
-                progressBar.textContent = Math.round(progress) + '%';
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    // Simulate successful upload
-                    setTimeout(() => {
-                        showUploadResult();
-                    }, 500);
-                }
-            }, 200);
-        }
-
-        // Show upload result
-        function showUploadResult() {
-            document.getElementById('progressSection').style.display = 'none';
-            
-            // Demo Cloudinary URL
-            const demoUrl = `https://res.cloudinary.com/demo/image/upload/v${Date.now()}/avatar_${user.id}.jpg`;
-            document.getElementById('avatarUrl').textContent = demoUrl;
-            document.getElementById('resultSection').style.display = 'block';
-        }
-
-        // Save avatar
-        async function saveAvatar() {
-            const avatarUrl = document.getElementById('avatarUrl').textContent;
-            const token = localStorage.getItem('token');
-            
-            console.log('💾 Saving avatar...', { avatarUrl, token });
-            
-            try {
-                // Gọi API để lưu vào server trước
-                console.log('📡 Calling API...');
-                const response = await fetch('/api/auth/update-avatar', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ avatar: avatarUrl })
-                });
-                
-                console.log('📬 API Response:', { status: response.status, ok: response.ok });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('✅ Server response:', result);
-                    
-                    // Cập nhật user trong localStorage với dữ liệu từ server
-                    const updatedUser = result.user;
-                    localStorage.setItem('user', JSON.stringify(updatedUser));
-                    console.log('💾 Updated localStorage user:', updatedUser);
-                    
-                    // Update current avatar display
-                    document.getElementById('currentAvatar').src = document.getElementById('previewImage').src;
-                    
-                    // Show success message
-                    alert(`✅ Đã lưu avatar thành công!\n\n${result.message}\n\nURL: ${avatarUrl}`);
-                    
-                    // Reset form
-                    cancelUpload();
-                    
-                    // Redirect back to dashboard after 1 second
-                    setTimeout(() => {
-                        console.log('🔄 Redirecting to dashboard...');
-                        window.location.href = 'dashboard.html';
-                    }, 1000);
-                    
-                } else {
-                    const errorData = await response.json();
-                    console.error('❌ Server error:', errorData);
-                    throw new Error(errorData.message || 'Server error');
-                }
-                
-            } catch (error) {
-                console.error('� Error:', error);
-                
-                // Fallback - lưu local
-                console.log('🔄 Saving to localStorage as fallback...');
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                user.avatar = avatarUrl;
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                alert(`⚠️ Lỗi lưu vào server: ${error.message}\n\n✅ Đã lưu avatar local thành công!\n\nURL: ${avatarUrl}`);
-                
-                // Update current avatar display
-                document.getElementById('currentAvatar').src = document.getElementById('previewImage').src;
-                
-                // Reset form
-                cancelUpload();
-                
-                // Redirect back to dashboard after 1 second
-                setTimeout(() => {
-                    console.log('🔄 Redirecting to dashboard...');
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            }
-        }
-
-        // Cancel upload
-        function cancelUpload() {
-            selectedFile = null;
-            document.getElementById('previewSection').style.display = 'none';
-            document.getElementById('progressSection').style.display = 'none';
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('fileInput').value = '';
-        }
-
-        // Go back to dashboard
-        function goBack() {
-            window.location.href = 'dashboard.html';
-        }
-
-        // Drag and drop functionality
-        const uploadZone = document.getElementById('uploadZone');
-
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.style.borderColor = '#007bff';
-            uploadZone.style.background = '#e3f2fd';
-        });
-
-        uploadZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            uploadZone.style.borderColor = '#dee2e6';
-            uploadZone.style.background = '#f8f9fa';
-        });
-
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.style.borderColor = '#dee2e6';
-            uploadZone.style.background = '#f8f9fa';
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const event = { target: { files: files } };
-                handleFileSelect(event);
-            }
-        });
-    </script>
-
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="upload-avatar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -3,70 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Group 11 (Redux Enhanced)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Đăng nhập - Group 11</title>
+    <link rel="stylesheet" href="css/modern-style.css" />
     <!-- Redux CDN for Hoạt động 6 -->
     <script src="https://unpkg.com/@reduxjs/toolkit@1.9.7/dist/redux-toolkit.umd.js"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px 15px 0 0 !important;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        }
-    </style>
 </head>
-<body class="form-page">
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4>🏠 Đăng nhập - Group 11</h4>
-                    </div>
-                    <div class="card-body">
-                        <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">📧 Email</label>
-                                <input type="email" class="form-control" id="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">🔒 Mật khẩu</label>
-                                <input type="password" class="form-control" id="password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
-                        </form>
-                        
-                        <div class="mt-3 text-center">
-                            <p>Chưa có tài khoản? <a href="signup.html">Đăng ký ngay</a></p>
-                            <p><a href="forgot-password.html">🔑 Quên mật khẩu?</a></p>
-                        </div>
-                        
-
-                    </div>
-                </div>
+<body class="gradient-primary">
+    <div class="container">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h2>🏠 Đăng nhập hệ thống</h2>
+                <div class="subtitle">Chào mừng trở lại với Group 11</div>
             </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">📧 Email</label>
+                    <input type="email" class="form-input" id="email" placeholder="Nhập email của bạn" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🔒 Mật khẩu</label>
+                    <input type="password" class="form-input" id="password" placeholder="Nhập mật khẩu" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Đăng nhập</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: #666;">Chưa có tài khoản? <a href="signup.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Đăng ký ngay</a></p>
+                <p><a href="forgot-password-new.html" style="color: #667eea; text-decoration: none;">🔑 Quên mật khẩu?</a></p>
+            </div>
+                        
         </div>
     </div>
 
@@ -78,7 +43,7 @@
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -93,30 +58,47 @@
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     
-                    alert('✅ Đăng nhập thành công!');
+                    showToast('🎉 Chào mừng ' + data.user.name + '! Đang chuyển hướng...', 'success');
                     
-                    // Chuyển hướng theo role
-                    if (data.user.role === 'admin') {
-                        window.location.href = 'dashboard.html?role=admin';
-                    } else if (data.user.role === 'moderator') {
-                        window.location.href = 'dashboard.html?role=moderator';
-                    } else {
-                        window.location.href = 'dashboard.html?role=user';
-                    }
+                    // Chuyển hướng sau 1.5 giây
+                    setTimeout(() => {
+                        window.location.href = 'dashboard-desktop.html';
+                    }, 1500);
                 } else {
-                    alert('❌ ' + data.message);
+                    showToast('❌ ' + data.message, 'error');
                 }
             } catch (error) {
-                alert('❌ Lỗi kết nối: ' + error.message);
+                showToast('❌ Lỗi kết nối: ' + error.message, 'error');
             }
         });
+        
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) existingToast.remove();
+            
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            toast.innerHTML = message;
+            
+            // Add to body
+            document.body.appendChild(toast);
+            
+            // Show animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
     </script>
 
-  <!-- Redux Integration Scripts - Hoạt động 6 -->
-  <script src="/js/redux-store.js"></script>
-  <script src="/js/redux-login.js"></script>
-  <script src="/js/activity6-test-suite.js"></script>
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

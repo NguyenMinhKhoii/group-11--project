@@ -387,7 +387,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   
   <script>
-    const API_BASE_URL = 'http://localhost:5173/api/auth';
+    const API_BASE_URL = 'http://localhost:5000/api/auth';
     
     // Load profile on page load
     window.addEventListener('load', () => {
@@ -420,10 +420,17 @@
 
     async function fetchProfileData(email) {
         try {
-            const response = await fetch(`${API_BASE_URL}/profile/${encodeURIComponent(email)}`);
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('No token found');
+
+            const response = await fetch(`${API_BASE_URL}/profile/${encodeURIComponent(email)}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
-            if (data.success) {
+            if (response.ok && data.success) {
                 displayProfileData(data.user);
             } else {
                 // Fallback to localStorage data
@@ -443,11 +450,11 @@
         
         // Profile card - Handle avatar with fallback
         const avatarElement = document.getElementById('profileAvatar');
-        const avatarUrl = user.avatar || `https://via.placeholder.com/200/667eea/white?text=${encodeURIComponent(user.fullname || 'User')}`;
+        const avatarUrl = user.avatar || `https://via.placeholder.com/200/667eea/white?text=${encodeURIComponent(user.name || 'User')}`;
         
         console.log('🖼️ Setting avatar URL:', avatarUrl);
         avatarElement.src = avatarUrl;
-        
+
         // Add error handler for avatar loading
         avatarElement.onerror = function() {
             console.log('❌ Avatar load failed, using fallback');
@@ -460,8 +467,8 @@
             console.log('✅ Avatar loaded successfully');
         };
         
-        document.getElementById('profileName').textContent = user.fullname || 'Unknown User';
-        document.getElementById('profileEmail').textContent = user.email || '';
+        document.getElementById('profileName').textContent = user.name || 'Unknown User';
+        document.getElementById('profileEmail').textContent = user.email || '...';
         
         // Role badge
         const roleBadge = document.getElementById('profileRoleBadge');
@@ -476,16 +483,16 @@
 
         // Info tab
         document.getElementById('infoEmail').textContent = user.email || '';
-        document.getElementById('infoFullname').textContent = user.fullname || 'Chưa cập nhật';
-        document.getElementById('infoRole').textContent = (user.role || 'user').toUpperCase();
-        document.getElementById('infoPhone').textContent = user.phone || 'Chưa cập nhật';
-        document.getElementById('infoAddress').textContent = user.address || 'Chưa cập nhật';
+        document.getElementById('infoFullname').textContent = user.name || 'Chưa cập nhật';
+        document.getElementById('infoRole').textContent = (user.role || 'user').toUpperCase();        
+        document.getElementById('infoPhone').textContent = user.phoneNumber || 'Chưa cập nhật';
+        document.getElementById('infoAddress').textContent = (user.address && user.address.street) ? user.address.street : 'Chưa cập nhật';
         document.getElementById('infoBio').textContent = user.bio || 'Chưa cập nhật';
 
         // Edit form
-        document.getElementById('editFullname').value = user.fullname || '';
-        document.getElementById('editPhone').value = user.phone || '';
-        document.getElementById('editAddress').value = user.address || '';
+        document.getElementById('editFullname').value = user.name || '';
+        document.getElementById('editPhone').value = user.phoneNumber || '';
+        document.getElementById('editAddress').value = (user.address && user.address.street) ? user.address.street : '';
         document.getElementById('editBio').value = user.bio || '';
     }
 
@@ -494,25 +501,29 @@
         e.preventDefault();
         
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        if (!token) return alert('❌ Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+
         const formData = {
-            fullname: document.getElementById('editFullname').value,
-            phone: document.getElementById('editPhone').value,
+            name: document.getElementById('editFullname').value,
+            phone: document.getElementById('editPhone').value, // Backend expects 'phone'
             address: document.getElementById('editAddress').value,
             bio: document.getElementById('editBio').value
         };
 
         try {
-            const response = await fetch(`${API_BASE_URL}/profile/${encodeURIComponent(user.email)}`, {
+            const response = await fetch(`${API_BASE_URL}/profile`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(formData)
             });
 
             const data = await response.json();
 
-            if (data.success) {
+            if (response.ok && data.success) {
                 alert('✅ ' + data.message);
                 // Update localStorage
                 const updatedUser = { ...user, ...data.user };
@@ -545,22 +556,26 @@
         }
 
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        if (!token) return alert('❌ Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(user.email)}/password`, {
-                method: 'PUT',
+            const response = await fetch(`${API_BASE_URL}/change-password`, {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     currentPassword,
-                    newPassword
+                    newPassword,
+                    confirmPassword // Thêm trường này để backend xác thực
                 })
             });
 
             const data = await response.json();
 
-            if (data.success) {
+            if (response.ok && data.success) {
                 alert('✅ ' + data.message);
                 // Clear form
                 document.getElementById('changePasswordForm').reset();

@@ -363,7 +363,6 @@ router.post('/avatar',
 router.get('/avatar', authenticateJWT, async (req, res) => {
   try {
     console.log('🔍 Đang lấy avatar cho user:', req.user.email);
-    
     // Tìm user trong MongoDB
     const user = await User.findById(req.user.id);
     

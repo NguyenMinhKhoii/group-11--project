@@ -1,6 +1,6 @@
 // Handle forgot password and reset password forms
 (function (){
-  const apiBase = '/api/auth'; // authRoutes exposes /forgot-password and /reset-password/:token
+  const apiBase = 'http://localhost:5000/api/auth'; // Sửa lại để gọi đúng backend
 
   function showAlert(el, msg, isError){
     // Clear previous content

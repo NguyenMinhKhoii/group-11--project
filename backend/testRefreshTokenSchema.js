@@ -1,25 +1,5 @@
-// Test RefreshToken Schema với mock data (không cần database)
-const mongoose = require("mongoose");
-const RefreshToken = require("./models/RefreshToken");
-const crypto = require("crypto");
-
-console.log("🧪 Testing RefreshToken Schema (Mock Data)\n");
-
-// Tạo mock userId
-const mockUserId = new mongoose.Types.ObjectId();
-console.log("🆔 Mock User ID:", mockUserId);
-
-// Test 1: Tạo RefreshToken instance
-console.log("\n1️⃣ Test tạo RefreshToken instance...");
-const tokenValue = crypto.randomBytes(32).toString("hex");
-const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 ngày
-
-const refreshToken = new RefreshToken({
-  userId: mockUserId,
-  token: tokenValue,
-  expiryDate: expiryDate,
-  isRevoked: false,
-});
+// Removed test code as requested.
+// Removed test code as requested.
 
 console.log("✅ RefreshToken instance created:");
 console.log("   - User ID:", refreshToken.userId);

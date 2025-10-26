@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Import models
 const User = require('./models/User');
@@ -14,14 +14,25 @@ const User = require('./models/User');
 const { uploadToCloudinary, deleteFromCloudinary, testCloudinaryConnection } = require('./utils/cloudinaryConfig');
 
 const app = express();
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 5000;
 
 // ========================
 // 🔧 MIDDLEWARE SETUP
 // ========================
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
-    credentials: true
+        origin: [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://localhost:5173',
+            'http://127.0.0.1:5173',
+            'http://localhost:5500', // For VSCode Live Server
+            'http://127.0.0.1:5500', // For VSCode Live Server
+            'http://localhost:5501', // For VSCode Live Server
+            'http://127.0.0.1:5501'  // For VSCode Live Server
+        ],
+    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -74,6 +85,64 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Middleware để kiểm tra vai trò (role)
+const checkRole = (roles) => {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return res.status(403).json({
+                success: false,
+                message: 'Không có quyền truy cập!'
+            });
+        }
+        next();
+    };
+};
+
+// ========================
+// 👤 ADMIN USER MANAGEMENT ROUTES (FIX)
+// ========================
+
+// PUT /api/v1/users/:id - Cập nhật thông tin user (Admin only)
+app.put('/api/v1/users/:id', authenticateToken, checkRole([User.ROLES.ADMIN]), async (req, res) => {
+    try {
+        const { name, role } = req.body;
+        const userId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'ID người dùng không hợp lệ' });
+        }
+
+        const userToUpdate = await User.findById(userId);
+        if (!userToUpdate) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        }
+
+        if (name) userToUpdate.name = name;
+        if (role && Object.values(User.ROLES).includes(role)) {
+            userToUpdate.role = role;
+        }
+
+        const updatedUser = await userToUpdate.save();
+        res.json({ success: true, message: 'Cập nhật người dùng thành công', user: updatedUser.getPublicInfo() });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Lỗi server khi cập nhật người dùng' });
+    }
+});
+
+// DELETE /api/v1/users/:id - Xóa user (Admin only)
+app.delete('/api/v1/users/:id', authenticateToken, checkRole([User.ROLES.ADMIN]), async (req, res) => {
+    try {
+        // Gọi trực tiếp controller để xử lý logic
+        const userController = require('./controllers/userController');
+        await userController.deleteUserById(req, res);
+    } catch (error) {
+        console.error('❌ Error in DELETE /api/v1/users/:id route:', error);
+        res.status(500).json({ success: false, message: 'Lỗi server khi xóa người dùng' });
+    }
+});
+
+
 // ========================
 // 🔧 CONNECT TO MONGODB
 // ========================
@@ -93,12 +162,24 @@ const connectDB = async () => {
 
 // ========================
 // 🔐 AUTH ROUTES
+app.get('/api/v1/users/all', 
+    authenticateToken, 
+    checkRole([User.ROLES.ADMIN, User.ROLES.MODERATOR]), 
+    async (req, res) => {
+        // Logic để lấy tất cả user đã có trong userController, chúng ta sẽ tích hợp nó vào đây
+        const userController = require('./controllers/userController');
+        userController.getAllUsers(req, res);
+    });
 // ========================
 
 // Đăng ký
 app.post('/api/auth/signup', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
+    console.log(`[SIGNUP] Received role from client: ${role}`);
+    const validRoles = ['user', 'admin', 'moderator'];
+    const userRole = validRoles.includes(role) ? role : 'user';
+    console.log(`[SIGNUP] Role to be saved: ${userRole}`);
 
         // Validation
         if (!name || !email || !password) {
@@ -125,15 +206,17 @@ app.post('/api/auth/signup', async (req, res) => {
         }
 
         // Tạo user mới (password sẽ được hash tự động trong pre-save hook)
+        // Nếu role không hợp lệ thì mặc định là user
         const newUser = new User({
             name,
             email,
-            password
+            password,
+            role: userRole
         });
 
         await newUser.save();
 
-        console.log('✅ User registered:', email);
+    console.log(`✅ User registered: ${email} | Role saved in DB: ${newUser.role}`);
 
         res.status(201).json({
             success: true,
@@ -159,7 +242,9 @@ app.post('/api/auth/signup', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log(`[LOGIN] Attempt for email: ${email}`);
 
+        // Validate input
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -167,52 +252,48 @@ app.post('/api/auth/login', async (req, res) => {
             });
         }
 
-        // Tìm user theo email
+        // Find user
         const user = await User.findOne({ email });
         if (!user) {
+            console.log(`[LOGIN] No user found for ${email}`);
             return res.status(400).json({
                 success: false,
                 message: 'Email không tồn tại!'
             });
         }
 
-        // Kiểm tra account có bị khóa không
-        if (user.isLocked()) {
+        // Log role from DB
+        console.log(`[LOGIN] Role from DB for ${email}: ${user.role}`);
+
+        // Check account lock
+        if (user.isLocked && user.isLocked()) {
             return res.status(423).json({
                 success: false,
                 message: 'Tài khoản bị khóa do đăng nhập sai quá nhiều lần!'
             });
         }
 
-        // Kiểm tra mật khẩu
+        // Check password
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            // Tăng số lần đăng nhập thất bại
-            await user.incLoginAttempts();
-            
-            return res.status(400).json({
-                success: false,
-                message: 'Sai mật khẩu!'
-            });
+            // Increment failed attempts
+            if (typeof user.incLoginAttempts === 'function') await user.incLoginAttempts();
+            return res.status(400).json({ success: false, message: 'Sai mật khẩu!' });
         }
 
-        // Reset login attempts khi đăng nhập thành công
-        await user.resetLoginAttempts();
+        // Reset login attempts on success
+        if (typeof user.resetLoginAttempts === 'function') await user.resetLoginAttempts();
 
-        // Tạo JWT token
+        // Create JWT
         const token = jwt.sign(
-            { 
-                id: user._id, 
-                email: user.email,
-                role: user.role 
-            }, 
+            { id: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'SECRET_KEY',
             { expiresIn: '24h' }
         );
 
-        console.log('✅ User logged in:', email);
+        console.log(`✅ User logged in: ${email} | Role in DB: ${user.role}`);
 
-        res.json({
+        return res.json({
             success: true,
             message: 'Đăng nhập thành công!',
             token,
@@ -221,17 +302,14 @@ app.post('/api/auth/login', async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                avatar: user.avatar || null, // 🔥 QUAN TRỌNG: Trả về avatar từ database
+                avatar: user.avatar || null,
                 avatarMetadata: user.avatarMetadata || null
             }
         });
 
     } catch (err) {
         console.error('❌ Login error:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi đăng nhập!'
-        });
+        return res.status(500).json({ success: false, message: 'Lỗi server khi đăng nhập!' });
     }
 });
 
@@ -557,6 +635,140 @@ app.delete('/api/avatar', authenticateToken, async (req, res) => {
     }
 });
 
+// Update user profile (protected)
+app.put('/api/auth/profile', authenticateToken, async (req, res) => {
+    try {
+        const { name, phone, address, bio } = req.body;
+        const userId = req.user.id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy người dùng!'
+            });
+        }
+
+        // Update fields if they are provided
+        if (name) user.name = name;
+        if (phone) user.phoneNumber = phone;
+        if (address) user.address.street = address; // Store in street for simplicity
+        if (bio) user.bio = bio;
+
+        const updatedUser = await user.save();
+
+        console.log('✅ Profile updated for:', user.email);
+
+        res.json({
+            success: true,
+            message: 'Cập nhật hồ sơ thành công!',
+            user: updatedUser.getPublicInfo()
+        });
+
+    } catch (error) {
+        console.error('❌ Update profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi cập nhật hồ sơ!'
+        });
+    }
+});
+
+// Change password (protected)
+app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        const userId = req.user.id;
+
+        // Basic validation
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng nhập đầy đủ thông tin!'
+            });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mật khẩu xác nhận không khớp!'
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mật khẩu mới phải có ít nhất 6 ký tự!'
+            });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
+        }
+
+        // Check current password
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không đúng!' });
+        }
+
+        // Update to new password (it will be hashed by the pre-save hook)
+        user.password = newPassword;
+        await user.save();
+
+        console.log('✅ Password changed for:', user.email);
+
+        res.json({
+            success: true,
+            message: 'Đổi mật khẩu thành công!'
+        });
+
+    } catch (error) {
+        console.error('❌ Change password error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi đổi mật khẩu!'
+        });
+    }
+});
+
+// ========================
+// 👤 USER PROFILE ROUTES
+// ========================
+
+// Get user profile by email (protected)
+app.get('/api/auth/profile/:email', authenticateToken, async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        // Find user by email, but exclude sensitive data
+        const user = await User.findOne({ email }).select('-password -resetToken -resetTokenExpiry -loginAttempts -lockUntil');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy người dùng!'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Lấy thông tin hồ sơ thành công!',
+            user: user.getPublicInfo() // Use the method to get safe data
+        });
+
+    } catch (error) {
+        console.error('❌ Get profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi lấy thông tin hồ sơ!'
+        });
+    }
+});
+
+
 // ========================
 // 🔧 DEBUG ROUTES
 // ========================
@@ -632,6 +844,8 @@ const startServer = async () => {
             console.log('   🖼️  POST /api/avatar/upload (JWT required)');
             console.log('   🖼️  GET /api/avatar (JWT required)');
             console.log('   🖼️  DELETE /api/avatar (JWT required)');
+            console.log('   👑 PUT /api/v1/users/:id (Admin required)');
+            console.log('   👑 DELETE /api/v1/users/:id (Admin required)');
             console.log('   🔧 GET /api/debug/token/:token');
             console.log('   ❤️  GET /api/health');
             console.log('🚀 =====================================');

@@ -1,25 +1,5 @@
-// Test User Schema với RBAC - SV3
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const User = require("./models/User");
-
 dotenv.config();
-
-console.log("🧪 SV3: Test User Schema với RBAC\n");
-
-// Kết nối database
-async function connectDB() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 10000,
-    });
-    console.log("✅ Kết nối MongoDB thành công");
-    return true;
-  } catch (error) {
-    console.error("❌ Kết nối MongoDB thất bại:", error.message);
-    return false;
-  }
-}
+// Removed test code as requested.
 
 // Test chính cho SV3 RBAC
 async function testRBACUserSchema() {

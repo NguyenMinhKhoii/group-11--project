@@ -10,7 +10,7 @@ const multer = require('multer');
 const fs = require('fs');
 
 const app = express();
-const PORT = 5173;
+const PORT = 5000; // Sửa cổng về 5000 để khớp với frontend
 
 // Persistent storage file paths
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
