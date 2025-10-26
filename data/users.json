@@ -1,0 +1,45 @@
+[
+  {
+    "id": "1",
+    "name": "Admin User",
+    "email": "admin@gmail.com",
+    "password": "123456",
+    "role": "admin",
+    "createdAt": "2025-10-17T00:00:00.000Z",
+    "avatar": "https://via.placeholder.com/150x150/007bff/ffffff?text=A1"
+  },
+  {
+    "id": "2",
+    "name": "Moderator User",
+    "email": "mod@gmail.com",
+    "password": "123456",
+    "role": "moderator",
+    "createdAt": "2025-10-17T00:00:00.000Z",
+    "avatar": "https://via.placeholder.com/150x150/ffc107/000000?text=M2"
+  },
+  {
+    "id": "3",
+    "name": "Regular User",
+    "email": "user@gmail.com",
+    "password": "123456",
+    "role": "user",
+    "createdAt": "2025-10-17T00:00:00.000Z",
+    "avatar": "https://via.placeholder.com/150x150/28a745/ffffff?text=U3"
+  },
+  {
+    "id": "4",
+    "name": "Khoi Test",
+    "email": "khoi@gmail.com",
+    "password": "123456",
+    "role": "user",
+    "createdAt": "2025-10-17T00:00:00.000Z"
+  },
+  {
+    "id": "5",
+    "name": "Hà Quốc Khởi",
+    "email": "khoi1@gmail.com",
+    "password": "123456",
+    "role": "user",
+    "createdAt": "2025-10-17T14:26:20.628Z"
+  }
+]
