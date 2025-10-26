@@ -1,3 +1,142 @@
+/* Simple modern theme for the admin UI */
+:root{
+  --bg:#07182a; /* deep navy */
+  --card:#082033; /* slightly lighter card */
+  --accent:#7ff7ff; /* brighter cyan */
+  --muted:#b6c9d2; /* muted text */
+  --danger:#ef4444; /* red */
+  --surface:#0b1220;
+  --glass: rgba(255,255,255,0.03);
+}
+
+html,body,#root{height:100%;}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: linear-gradient(180deg,var(--bg), #031827 160%);
+  color: #f0fbff;
+  -webkit-font-smoothing:antialiased;
+  font-size:16px;
+}
+
+.app{
+  max-width:1300px;
+  margin:28px auto;
+  padding:36px 28px;
+}
+
+.header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+h1{
+  margin:0 0 14px 0;
+  font-size:34px;
+  color:var(--accent);
+  text-shadow:0 4px 20px rgba(0,0,0,0.6);
+  letter-spacing:0.4px;
+}
+
+.auth-row{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap:24px;
+  align-items:start;
+  margin-bottom:30px;
+}
+
+.card{
+  background: linear-gradient(180deg,var(--card), rgba(8,28,45,0.97));
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.06);
+  padding:20px 22px;
+  box-shadow: 0 10px 36px rgba(2,10,20,0.5);
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.card:hover{ transform: translateY(-4px); box-shadow: 0 18px 48px rgba(2,10,20,0.55); }
+
+.auth-card{min-width:260px}
+
+.card h3{ margin-top:0; color:var(--accent); font-size:18px }
+
+.user-form{display:flex;gap:12px;align-items:center;margin:14px 0;flex-wrap:wrap}
+.user-form input[type="text"], .user-form input[type="email"], .user-form input[type="password"],
+.card input, .card select{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.07);
+  padding:12px 14px;
+  border-radius:10px;
+  color:#e8fbff;
+  min-width:180px;
+  outline: none;
+}
+.card input::placeholder{ color: rgba(255,255,255,0.18); }
+.card input:focus{ box-shadow: 0 8px 28px rgba(127,247,255,0.08); border-color: rgba(127,247,255,0.95); }
+
+button{
+  background:linear-gradient(180deg,var(--accent), #4fe8e8);
+  color:#022122;
+  border:0;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:800;
+  font-size:15px;
+  box-shadow: 0 8px 22px rgba(80,200,220,0.10);
+}
+button:hover{ transform: translateY(-2px); }
+button[disabled]{opacity:0.6;cursor:not-allowed}
+
+.token{font-family:monospace;font-size:12px;color:var(--muted);margin-top:8px;word-break:break-all}
+
+.user-list{margin-top:20px}
+.user-list ul{list-style:none;padding:0;margin:0}
+.user-list li{
+  display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid rgba(255,255,255,0.04);
+  gap:12px;
+}
+.user-list .meta{color:var(--muted);font-size:13px}
+.user-list li img.avatar{ width:44px; height:44px; border-radius:8px; object-fit:cover; margin-right:12px; border:1px solid rgba(255,255,255,0.03) }
+
+.admin-panel{margin-top:12px}
+.admin-panel h3{margin:0 0 8px 0;color:#fff}
+.err{color:var(--danger);margin-bottom:8px}
+
+.small{font-size:13px;color:var(--muted)}
+
+/* layout: profile card larger */
+.profile-card{ display:block; padding:18px; border-radius:12px; }
+.profile-card img{ width:140px; height:140px; border-radius:12px; object-fit:cover; display:block; margin-top:12px }
+
+/* profile grid */
+.profile-grid{ display:grid; grid-template-columns: 220px 1fr; gap:24px; align-items:start }
+.profile-left{ padding-right:6px }
+.avatar-large{ width:200px; height:200px; border-radius:12px; object-fit:cover; border:1px solid rgba(255,255,255,0.04); display:block; }
+.profile-right .profile-section{ margin-bottom:12px }
+.profile-right label.small{ display:block; margin-bottom:6px; color:var(--muted) }
+
+@media (max-width:720px){
+  .profile-grid{ grid-template-columns: 1fr; }
+  .avatar-large{ margin: 8px 0 }
+}
+
+/* responsive tweaks */
+@media (max-width:1100px){
+  .auth-row{ grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width:720px){
+  .auth-row{flex-direction:column; grid-template-columns: 1fr}
+  form.user-form{flex-direction:column;align-items:stretch}
+}
+
+@media (max-width:720px){
+  .auth-row{flex-direction:column}
+  form.user-form{flex-direction:column;align-items:stretch}
+}
 .App {
   text-align: center;
 }
